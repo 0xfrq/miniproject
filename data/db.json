@@ -1,0 +1,585 @@
+{
+  "meta": {
+    "schoolName": "SDN Bangah No. 383",
+    "shortName": "SDN Bangah",
+    "eyebrow": "Sekolah dasar · Belajar dekat dengan kehidupan",
+    "heroTitle": "Belajar dengan rasa ingin tahu.",
+    "heroDescription": "Di SDN Bangah, pelajaran tidak berhenti di halaman buku. Kami merawat pertanyaan, memberi ruang untuk mencoba, dan berjalan bersama setiap prosesnya.",
+    "aboutTitle": "Sekolah yang hadir sepenuhnya.",
+    "aboutDescription": "Kami percaya pendidikan yang baik membuat anak lebih peka terhadap sekitarnya—dan lebih berani mengambil bagian.",
+    "aboutBody": "SDN Bangah adalah ruang belajar untuk anak-anak yang sedang menyusun cara pandangnya sendiri. Di sini, matematika bisa dimulai dari kebun, lingkungan sekitar menjadi bahan pengamatan, dan karya seni boleh lahir dari kegagalan percobaan pertama. Kegiatan belajar dirancang dekat dengan kehidupan nyata. Guru mengajak siswa bertanya, menguji, menyusun ulang, lalu menjelaskan kembali dengan bahasa mereka sendiri.",
+    "contactEmail": "halo@sdnbangah.sch.id",
+    "phone": "(031) 555 0125",
+    "address": "Jl. Pendidikan No. 383, Bangah",
+    "year": "2024/25",
+    "imageLabels": {
+      "hero": "IMAGE · HERO UTAMA",
+      "secondary": "IMAGE · HALAMAN SEKOLAH",
+      "activity": "IMAGE · KEGIATAN SEKOLAH",
+      "news": "IMAGE · BERITA UTAMA"
+    }
+  },
+  "values": [
+    {
+      "id": "value-1",
+      "title": "Datang dengan pertanyaan",
+      "description": "Rasa penasaran bukan gangguan. Ia adalah awal dari pelajaran yang melekat."
+    },
+    {
+      "id": "value-2",
+      "title": "Membuat sesuatu bersama",
+      "description": "Ide tumbuh lebih kuat saat dibagikan dan dikerjakan bersama."
+    },
+    {
+      "id": "value-3",
+      "title": "Pulang membawa cerita",
+      "description": "Setiap hari menyisakan sesuatu untuk dibagikan kembali di rumah."
+    }
+  ],
+  "activities": [
+    {
+      "id": "activity-1",
+      "title": "Membaca lebih dekat",
+      "description": "Klub mingguan untuk menemukan satu buku, lalu membawanya ke percakapan.",
+      "label": "01 · Studio baca",
+      "imageLabel": "IMAGE · STUDIO BACA"
+    },
+    {
+      "id": "activity-2",
+      "title": "Belajar dari sekitar",
+      "description": "Siswa mengamati lingkungan, bertemu narasumber, dan menyusun temuannya.",
+      "label": "02 · Jelajah sekitar",
+      "imageLabel": "IMAGE · JELAJAH SEKITAR"
+    },
+    {
+      "id": "activity-3",
+      "title": "Menguji kemungkinan",
+      "description": "Ruang eksperimen untuk membuat prototipe dan belajar dari hasilnya.",
+      "label": "03 · Laboratorium ide",
+      "imageLabel": "IMAGE · LABORATORIUM IDE"
+    },
+    {
+      "id": "activity-4",
+      "title": "Berani tampil, siap mendengar",
+      "description": "Presentasi dan forum siswa untuk melatih suara serta empati.",
+      "label": "04 · Panggung bersama",
+      "imageLabel": "IMAGE · PANGGUNG BERSAMA"
+    }
+  ],
+  "posts": [
+    {
+      "id": "post-1",
+      "title": "Ketika sekolah memberi waktu untuk mendengar.",
+      "excerpt": "Beberapa pelajaran terbaik dimulai saat kita berhenti sebentar, memperhatikan, lalu mengajukan pertanyaan yang lebih baik.",
+      "category": "Catatan kepala sekolah",
+      "date": "18 Mei 2025",
+      "featured": true,
+      "imageLabel": "IMAGE · BERITA UTAMA"
+    },
+    {
+      "id": "post-2",
+      "title": "Klub sains mengubah halaman belakang menjadi kebun belajar.",
+      "excerpt": "Kabar dari halaman sekolah dan percakapan siswa.",
+      "category": "Kabar siswa",
+      "date": "12 Mei 2025",
+      "featured": false,
+      "imageLabel": "IMAGE · KABAR SISWA"
+    },
+    {
+      "id": "post-3",
+      "title": "Menemani anak memilih jalan setelah sekolah.",
+      "excerpt": "Beberapa cara sederhana membuka obrolan tentang hari belajar.",
+      "category": "Untuk keluarga",
+      "date": "04 Mei 2025",
+      "featured": false,
+      "imageLabel": "IMAGE · UNTUK KELUARGA"
+    },
+    {
+      "id": "post-4",
+      "title": "Proyek kecil, percakapan besar di kelas lima.",
+      "excerpt": "Catatan tentang proses belajar yang tumbuh dari hal sederhana.",
+      "category": "Ruang guru",
+      "date": "27 April 2025",
+      "featured": false,
+      "imageLabel": "IMAGE · RUANG GURU"
+    }
+  ],
+  "agenda": [
+    {
+      "id": "agenda-1",
+      "title": "Open house dan tur ruang belajar",
+      "description": "Kenali ruang belajar dan berbincang dengan tim sekolah.",
+      "date": "07 Juni 2025",
+      "time": "09.00–12.00"
+    },
+    {
+      "id": "agenda-2",
+      "title": "Pameran karya akhir semester",
+      "description": "Karya siswa dibuka untuk keluarga dan masyarakat.",
+      "date": "21 Juni 2025",
+      "time": "15.30–18.00"
+    },
+    {
+      "id": "agenda-3",
+      "title": "Forum keluarga: memilih langkah berikutnya",
+      "description": "Percakapan terbuka tentang perkembangan belajar anak.",
+      "date": "12 Juli 2025",
+      "time": "09.00–11.00"
+    }
+  ],
+  "materials": [
+    {
+      "id": "material-e74177e0",
+      "title": "test",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "summary": "Materi tentang organ dan fungsi sistem pernapasan.",
+      "content": "Sistem pernapasan manusia terdiri dari organ yang bekerja bersama untuk mengambil oksigen dan membuang karbon dioksida.",
+      "status": "Draft",
+      "updatedAt": "20 Mei 2025"
+    },
+    {
+      "id": "material-584a2baf",
+      "title": "Materi baru — tulis topik",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "summary": "Materi tentang organ dan fungsi sistem pernapasan.",
+      "content": "Sistem pernapasan manusia terdiri dari organ yang bekerja bersama untuk mengambil oksigen dan membuang karbon dioksida.",
+      "status": "Draft",
+      "updatedAt": "20 Mei 2025"
+    },
+    {
+      "id": "material-1",
+      "title": "Sistem Pernapasan Manusia",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "summary": "Materi tentang organ dan fungsi sistem pernapasan.",
+      "content": "Sistem pernapasan manusia terdiri dari organ yang bekerja bersama untuk mengambil oksigen dan membuang karbon dioksida.",
+      "status": "Draft",
+      "updatedAt": "19 Mei 2025"
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-45fe6305",
+      "title": "Matematika — Pecahan",
+      "subject": "Matematika",
+      "grade": "Kelas 5 SD",
+      "questionCount": 20,
+      "duration": "35 menit",
+      "status": "Draft",
+      "updatedAt": "Hari ini"
+    },
+    {
+      "id": "assessment-1",
+      "title": "Ulangan Harian Matematika — Pecahan",
+      "subject": "Matematika",
+      "grade": "Kelas 5 SD",
+      "questionCount": 20,
+      "duration": "35 menit",
+      "status": "Siap digunakan",
+      "updatedAt": "18 Mei 2025"
+    }
+  ],
+  "questions": [
+    {
+      "id": "question-4a3c1df3",
+      "type": "Essay",
+      "text": "Budi mempunyai tepung terigu sebanyak 2 1/2 kg. Tepung tersebut digunakan untuk membuat kue sebanyak 1 1/4 kg. Berapa kg sisa tepung terigu Budi sekarang?",
+      "correct": "1 1/4 kg",
+      "difficulty": "Sukar",
+      "objective": "Siswa dapat menyelesaikan soal cerita pecahan campuran.",
+      "explanation": "2 1/2 - 1 1/4 = 2 2/4 - 1 1/4 = (2 - 1) + (2/4 - 1/4) = 1 1/4 kg.",
+      "quality": "ok",
+      "options": [],
+      "assessmentId": "assessment-45fe6305",
+      "number": 20
+    },
+    {
+      "id": "question-a74f3b64",
+      "type": "Essay",
+      "text": "Urutkan pecahan berikut dari yang terkecil hingga yang terbesar: 1/2, 3/4, 1/4!",
+      "correct": "1/4, 1/2, 3/4",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat mengurutkan beberapa pecahan.",
+      "explanation": "Samakan penyebut menjadi 4: 1/2 = 2/4; 3/4 = 3/4; 1/4 = 1/4. Urutan dari terkecil: 1/4, 2/4 (1/2), 3/4.",
+      "quality": "ok",
+      "options": [],
+      "assessmentId": "assessment-45fe6305",
+      "number": 19
+    },
+    {
+      "id": "question-083ec108",
+      "type": "Isian Singkat",
+      "text": "Hasil dari 5/6 - 1/3 adalah ...",
+      "correct": "3/6",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat menghitung pengurangan dua pecahan berpenyebut berbeda.",
+      "explanation": "Samakan penyebut menjadi 6: 5/6 - 2/6 = 3/6 (atau 1/2).",
+      "quality": "ok",
+      "options": [],
+      "assessmentId": "assessment-45fe6305",
+      "number": 18
+    },
+    {
+      "id": "question-c6bb51e9",
+      "type": "Isian Singkat",
+      "text": "Hasil penjumlahan dari 2/5 + 1/4 adalah ...",
+      "correct": "13/20",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat menghitung penjumlahan dua pecahan berpenyebut berbeda.",
+      "explanation": "Samakan penyebut menjadi 20: 8/20 + 5/20 = 13/20.",
+      "quality": "ok",
+      "options": [],
+      "assessmentId": "assessment-45fe6305",
+      "number": 17
+    },
+    {
+      "id": "question-3cd2fa3a",
+      "type": "Isian Singkat",
+      "text": "Bentuk pecahan paling sederhana dari 5/15 adalah ...",
+      "correct": "1/3",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat menentukan bentuk sederhana dari suatu pecahan.",
+      "explanation": "Pembilang dan penyebut dibagi 5, sehingga 5/15 menjadi 1/3.",
+      "quality": "ok",
+      "options": [],
+      "assessmentId": "assessment-45fe6305",
+      "number": 16
+    },
+    {
+      "id": "question-35778a07",
+      "type": "Pilihan Ganda",
+      "text": "Hasil dari 1 1/3 + 2 1/6 adalah ...",
+      "options": [
+        "A. 3 2/9",
+        "B. 3 3/6",
+        "C. 3 2/6",
+        "D. 3 1/6"
+      ],
+      "correct": "B",
+      "difficulty": "Sukar",
+      "objective": "Siswa dapat menjumlahkan dua pecahan campuran.",
+      "explanation": "(1 + 2) + (1/3 + 1/6) = 3 + (2/6 + 1/6) = 3 3/6 (atau 3 1/2).",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 15
+    },
+    {
+      "id": "question-898f0189",
+      "type": "Pilihan Ganda",
+      "text": "Ibu memiliki 3/4 m pita, diberikan kepada Rani 1/3 m. Sisa pita Ibu adalah ... m.",
+      "options": [
+        "A. 5/12",
+        "B. 2/12",
+        "C. 2/1",
+        "D. 4/7"
+      ],
+      "correct": "A",
+      "difficulty": "Sukar",
+      "objective": "Siswa dapat menyelesaikan masalah cerita pengurangan pecahan berpenyebut berbeda.",
+      "explanation": "3/4 - 1/3 = 9/12 - 4/12 = 5/12 m.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 14
+    },
+    {
+      "id": "question-cd6b7871",
+      "type": "Pilihan Ganda",
+      "text": "Bentuk sederhana dari 12/16 adalah ...",
+      "options": [
+        "A. 2/3",
+        "B. 3/4",
+        "C. 4/5",
+        "D. 6/8"
+      ],
+      "correct": "B",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat menyederhanakan pecahan ke bentuk paling sederhana.",
+      "explanation": "Masing-masing dibagi dengan FPB yaitu 4: (12:4)/(16:4) = 3/4.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 13
+    },
+    {
+      "id": "question-99791c43",
+      "type": "Pilihan Ganda",
+      "text": "Tanda yang tepat untuk mengisi 2/3 ... 3/4 adalah ...",
+      "options": [
+        "A. >",
+        "B. <",
+        "C. =",
+        "D. >="
+      ],
+      "correct": "B",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat membandingkan dua pecahan berpenyebut berbeda.",
+      "explanation": "Samakan penyebut ke 12: 2/3 = 8/12 dan 3/4 = 9/12. Karena 8 < 9, maka 2/3 < 3/4.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 12
+    },
+    {
+      "id": "question-264ab8c1",
+      "type": "Pilihan Ganda",
+      "text": "Hasil perkalian dari 2/3 x 3/4 adalah ...",
+      "options": [
+        "A. 5/7",
+        "B. 6/12",
+        "C. 5/12",
+        "D. 6/7"
+      ],
+      "correct": "B",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat mengalikan dua pecahan sederhana.",
+      "explanation": "(2 x 3) / (3 x 4) = 6/12 (atau disederhanakan menjadi 1/2).",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 11
+    },
+    {
+      "id": "question-0e202e9a",
+      "type": "Pilihan Ganda",
+      "text": "Siti membeli 1/4 kg gula, kemudian membeli lagi 2/4 kg gula. Berapa kg total gula yang dibeli Siti?",
+      "options": [
+        "A. 3/4 kg",
+        "B. 3/8 kg",
+        "C. 2/4 kg",
+        "D. 1/4 kg"
+      ],
+      "correct": "A",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat menyelesaikan masalah cerita penjumlahan pecahan berpenyebut sama.",
+      "explanation": "Total gula = 1/4 + 2/4 = 3/4 kg.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 10
+    },
+    {
+      "id": "question-6f43a36f",
+      "type": "Pilihan Ganda",
+      "text": "Hasil pengurangan dari 3/4 - 1/2 adalah ...",
+      "options": [
+        "A. 2/4",
+        "B. 1/4",
+        "C. 2/2",
+        "D. 1/2"
+      ],
+      "correct": "B",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat mengurangkan dua pecahan berpenyebut berbeda.",
+      "explanation": "Disamakan penyebutnya menjadi 4: 3/4 - 2/4 = 1/4.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 9
+    },
+    {
+      "id": "question-bd6993ac",
+      "type": "Pilihan Ganda",
+      "text": "Hasil penjumlahan dari 1/2 + 1/3 adalah ...",
+      "options": [
+        "A. 2/5",
+        "B. 5/6",
+        "C. 2/6",
+        "D. 3/6"
+      ],
+      "correct": "B",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat menjumlahkan dua pecahan berpenyebut berbeda.",
+      "explanation": "KPK dari 2 dan 3 adalah 6. (3/6) + (2/6) = 5/6.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 8
+    },
+    {
+      "id": "question-462b17f8",
+      "type": "Pilihan Ganda",
+      "text": "Manakah di antara pecahan berikut yang nilainya paling besar?",
+      "options": [
+        "A. 1/2",
+        "B. 1/3",
+        "C. 1/4",
+        "D. 1/5"
+      ],
+      "correct": "A",
+      "difficulty": "Sedang",
+      "objective": "Siswa dapat membandingkan pecahan penyebut berbeda dengan pembilang sama.",
+      "explanation": "Jika pembilangnya sama (1), makin kecil penyebutnya maka makin besar nilai pecahannya. 1/2 adalah yang terbesar.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 7
+    },
+    {
+      "id": "question-95b65ce5",
+      "type": "Pilihan Ganda",
+      "text": "Pecahan paling sederhana dari 6/10 adalah ...",
+      "options": [
+        "A. 1/5",
+        "B. 2/5",
+        "C. 3/5",
+        "D. 4/5"
+      ],
+      "correct": "C",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat menyederhanakan pecahan.",
+      "explanation": "Pembilang dan penyebut sama-sama dibagi 2: (6:2)/(10:2) = 3/5.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 6
+    },
+    {
+      "id": "question-ecfd4310",
+      "type": "Pilihan Ganda",
+      "text": "Bentuk pecahan biasa dari 1 1/2 adalah ...",
+      "options": [
+        "A. 2/2",
+        "B. 3/2",
+        "C. 1/2",
+        "D. 4/2"
+      ],
+      "correct": "B",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat mengubah pecahan campuran menjadi pecahan biasa.",
+      "explanation": "(1 × 2) + 1 = 3, sehingga pecahan biasanya adalah 3/2.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 5
+    },
+    {
+      "id": "question-6375827a",
+      "type": "Pilihan Ganda",
+      "text": "Hasil pengurangan 8/9 - 3/9 adalah ...",
+      "options": [
+        "A. 5/9",
+        "B. 5/0",
+        "C. 11/9",
+        "D. 4/9"
+      ],
+      "correct": "A",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat mengurangkan dua pecahan berpenyebut sama.",
+      "explanation": "Pengurangan pembilang: 8 - 3 = 5. Penyebut tetap 9, maka hasilnya 5/9.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 4
+    },
+    {
+      "id": "question-f1d892b4",
+      "type": "Pilihan Ganda",
+      "text": "Tanda perbandingan yang tepat untuk 3/5 ... 1/5 adalah ...",
+      "options": [
+        "A. <",
+        "B. >",
+        "C. =",
+        "D. +="
+      ],
+      "correct": "B",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat membandingkan dua pecahan berpenyebut sama.",
+      "explanation": "Penyebut kedua pecahan sama (5). Karena 3 lebih besar dari 1, maka 3/5 > 1/5.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 3
+    },
+    {
+      "id": "question-08807477",
+      "type": "Pilihan Ganda",
+      "text": "Hasil dari 2/7 + 3/7 adalah ...",
+      "options": [
+        "A. 5/14",
+        "B. 5/7",
+        "C. 6/7",
+        "D. 1/7"
+      ],
+      "correct": "B",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat menjumlahkan dua pecahan berpenyebut sama.",
+      "explanation": "Karena penyebutnya sudah sama, langsung jumlahkan pembilangnya: 2 + 3 = 5, sehingga hasilnya 5/7.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 2
+    },
+    {
+      "id": "question-fd4d4848",
+      "type": "Pilihan Ganda",
+      "text": "Pecahan 1/4 nilainya sama dengan ...",
+      "options": [
+        "A. 2/8",
+        "B. 2/4",
+        "C. 3/4",
+        "D. 4/8"
+      ],
+      "correct": "A",
+      "difficulty": "Mudah",
+      "objective": "Siswa dapat menentukan pecahan senilai.",
+      "explanation": "Pecahan 1/4 jika pembilang dan penyebutnya dikalikan 2 akan menjadi 2/8.",
+      "quality": "ok",
+      "assessmentId": "assessment-45fe6305",
+      "number": 1
+    },
+    {
+      "id": "question-1",
+      "assessmentId": "assessment-1",
+      "number": 1,
+      "type": "Pilihan Ganda",
+      "text": "Pecahan manakah yang senilai dengan 1/2?",
+      "options": [
+        "2/4",
+        "2/3",
+        "3/5",
+        "4/5"
+      ],
+      "answer": "2/4",
+      "objective": "Mengenali pecahan senilai",
+      "difficulty": "Mudah"
+    },
+    {
+      "id": "question-2",
+      "assessmentId": "assessment-1",
+      "number": 2,
+      "type": "Pilihan Ganda",
+      "text": "Hasil dari 2/3 + 1/6 adalah …",
+      "options": [
+        "1/2",
+        "5/6",
+        "3/9",
+        "1 1/6"
+      ],
+      "answer": "5/6",
+      "objective": "Menjumlahkan pecahan berbeda penyebut",
+      "difficulty": "Sedang"
+    }
+  ],
+  "grading": [
+    {
+      "id": "gradin-99470474",
+      "assessmentId": "assessment-1",
+      "studentName": "budi",
+      "correct": 20,
+      "wrong": 0,
+      "score": 100,
+      "status": "Selesai",
+      "confidence": "Manual"
+    },
+    {
+      "id": "grading-1",
+      "assessmentId": "assessment-1",
+      "studentName": "Andi Pratama",
+      "correct": 18,
+      "wrong": 2,
+      "score": 90,
+      "status": "Selesai",
+      "confidence": "Manual"
+    },
+    {
+      "id": "grading-2",
+      "assessmentId": "assessment-1",
+      "studentName": "Siti Aulia",
+      "correct": 16,
+      "wrong": 4,
+      "score": 80,
+      "status": "Selesai",
+      "confidence": "Manual"
+    }
+  ]
+}

@@ -1,6 +1,9 @@
 /* Frontend demo services are intentionally isolated here.
- * Replace these functions with fetch() calls when the backend is ready:
- * generateMaterial(), generateQuestions(), analyzeAssessment(), gradeAnswerSheet().
+ * AI generation calls the local Express backend. The API key never reaches this browser page:
+ * /api/ai/generate-material, /api/ai/generate-questions, /api/ai/analyze-assessment.
+ * Reference lookup and answer-sheet grading remain mock services until their provider is wired.
+ * Google/PDF discovery must run on the backend because browser-side scraping is blocked by CORS,
+ * robots policies, and should be handled with source/licensing checks before a real download.
  */
 
 (() => {
@@ -8,6 +11,7 @@
 
   const sleep = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
   const root = document.querySelector('#view-root');
+  const staticIconRoot = document.body;
   const breadcrumbs = document.querySelector('#breadcrumbs');
   const toast = document.querySelector('#toast');
   const toastMessage = document.querySelector('#toast-message');
@@ -29,7 +33,10 @@
     materialStep: 1,
     materialConfig: { subject: 'IPA', grade: 'Kelas 5 SD', topic: 'Sistem Pernapasan Manusia', objective: 'Siswa mampu menjelaskan fungsi organ pernapasan manusia.', duration: '2 × 35 menit', depth: 'Sesuai usia' },
     materialFormat: 'Materi + Aktivitas',
-    materialReferenceFile: '',
+    referenceQuery: { title: '', isbn: '' },
+    referenceResults: [],
+    selectedReference: null,
+    referenceSearching: false,
     materialGenerating: false,
     materialGenerated: false,
     materialEditMode: false,
@@ -54,23 +61,38 @@
     toastTimer: null,
   };
 
+  async function requestAI(path, payload) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 125000);
+    try {
+      const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: controller.signal });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Permintaan AI gagal.');
+      return data;
+    } catch (error) {
+      if (error.name === 'AbortError') throw new Error('Permintaan AI terlalu lama. Silakan coba lagi dengan format materi yang lebih ringkas.');
+      throw error;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
   const mockServices = {
+    async searchReferenceBook(query) {
+      const response = await requestAI('/api/ai/search-reference', query);
+      return response.results;
+    },
     async generateMaterial(config) {
-      await sleep(800);
-      return { title: `${config.subject} · ${config.topic}`, sections: state.materialSections.map((section) => ({ ...section })) };
+      const response = await requestAI('/api/ai/generate-material', { ...config, format: state.materialFormat, reference: state.selectedReference });
+      return response;
     },
     async generateQuestions(config) {
-      await sleep(850);
-      return [
-        { id: 'q-1', type: 'Pilihan Ganda', text: 'Pecahan manakah yang senilai dengan 1/2?', options: ['2/4', '2/3', '3/5', '4/5'], correct: 'A', difficulty: 'Mudah', objective: 'Mengenali pecahan senilai', explanation: '2/4 dapat disederhanakan dengan membagi pembilang dan penyebut dengan 2 sehingga menjadi 1/2.', quality: 'ok' },
-        { id: 'q-2', type: 'Pilihan Ganda', text: 'Hasil dari 2/3 + 1/6 adalah …', options: ['1/2', '5/6', '3/9', '1 1/6'], correct: 'B', difficulty: 'Sedang', objective: 'Menjumlahkan pecahan berbeda penyebut', explanation: 'Samakan penyebut menjadi 6. Dua per tiga sama dengan empat per enam, lalu ditambah satu per enam menjadi lima per enam.', quality: 'warning' },
-        { id: 'q-3', type: 'Isian Singkat', text: 'Tuliskan pecahan yang menunjukkan tiga bagian dari delapan bagian sama besar.', options: [], correct: '3/8', difficulty: 'Mudah', objective: 'Menuliskan pecahan dari representasi bagian', explanation: 'Pembilang menunjukkan bagian yang diambil, sedangkan penyebut menunjukkan seluruh bagian yang sama besar.', quality: 'ok' },
-        { id: 'q-4', type: 'Essay', text: 'Ibu memiliki 3/4 kg tepung dan menggunakan 1/2 kg. Jelaskan berapa sisa tepung dan langkah menghitungnya.', options: [], correct: '1/4 kg', difficulty: 'Sedang', objective: 'Mengurangkan pecahan dalam konteks sehari-hari', explanation: 'Ubah 1/2 menjadi 2/4, lalu 3/4 dikurangi 2/4 sama dengan 1/4 kg.', quality: 'ok' },
-      ];
+      const response = await requestAI('/api/ai/generate-questions', { ...config, difficulty: state.questionDifficulty, distribution: state.difficultyDistribution });
+      return response.questions;
     },
     async analyzeAssessment(results) {
-      await sleep(1000);
-      return 'Berdasarkan hasil penilaian yang tersedia, sebagian besar siswa sudah memahami pecahan dasar. Perhatian berikutnya dapat diarahkan pada penyamaan penyebut dan penjelasan langkah pengerjaan soal cerita. Gunakan interpretasi ini sebagai bahan diskusi, lalu cocokkan kembali dengan jawaban dan proses belajar siswa.';
+      const response = await requestAI('/api/ai/analyze-assessment', { results });
+      return response.analysis;
     },
     async gradeAnswerSheet(files) {
       await sleep(900);
@@ -152,13 +174,41 @@
     }).join('')}</div>`;
   }
 
+  function hydrateIcons(container = document) {
+    const iconPaths = {
+      home: '<path d="M3.5 10.5 12 3l8.5 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-6h6v6"/>',
+      book: '<path d="M5 4.5h11.5A2.5 2.5 0 0 1 19 7v12.5H7.5A2.5 2.5 0 0 1 5 17V4.5Z"/><path d="M5 17a2.5 2.5 0 0 1 2.5-2.5H19M8.5 8h6M8.5 11h4"/>',
+      clipboard: '<rect x="5" y="4.5" width="14" height="16" rx="1.5"/><path d="M9 4.5V3h6v1.5M8.5 9h7M8.5 12h7M8.5 15h4"/>',
+      clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>',
+      scan: '<path d="M5 8V5h3M16 5h3v3M19 16v3h-3M8 19H5v-3"/><path d="M8 12h8M12 8v8"/>',
+      search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+      upload: '<path d="M12 16V4M8 8l4-4 4 4M5 15v4h14v-4"/>',
+      camera: '<path d="M4 8.5h3l1.4-2h7.2l1.4 2h3v10H4v-10Z"/><circle cx="12" cy="13.5" r="3"/>',
+      spark: '<path d="m12 3 1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8L12 3Z"/>',
+      arrow: '<path d="M5 19 19 5M9 5h10v10"/>',
+      chevronRight: '<path d="m9.5 5 7 7-7 7"/>',
+      check: '<path d="m5 12.5 4.2 4.2L19 7"/>',
+      menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+      user: '<circle cx="12" cy="8" r="3.3"/><path d="M5 20c.7-3.2 3.1-5 7-5s6.3 1.8 7 5"/>',
+      settings: '<path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1-1.5 2.6-.2-.1a2 2 0 0 0-2.2.1l-.2.1a2 2 0 0 0-1 1.8v.2h-3v-.2a2 2 0 0 0-1.1-1.8l-.2-.1a2 2 0 0 0-2.2-.1l-.2.1-1.5-2.6.1-.1a2 2 0 0 0 .1-2.2v-.2a2 2 0 0 0-1.4-1.5H5.1V8h.3a2 2 0 0 0 1.4-1.4v-.2a2 2 0 0 0-.1-2.2l-.1-.1L8.1 1.5l.2.1a2 2 0 0 0 2.2-.1l.2-.1V1.2h3v.2a2 2 0 0 0 1 1.8l.2.1a2 2 0 0 0 2.2.1l.2-.1 1.5 2.6-.1.1a2 2 0 0 0-.1 2.2v.2a2 2 0 0 0 1.4 1.5h.3v3h-.3a2 2 0 0 0-1.4 1.5v.2a2 2 0 0 0 .1 2.2Z"/>',
+      bell: '<path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8ZM10 21h4"/>' ,
+    };
+    container.querySelectorAll('[data-icon]').forEach((node) => {
+      const name = node.dataset.icon;
+      if (!iconPaths[name] || node.querySelector('svg')) return;
+      node.innerHTML = `<svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${iconPaths[name]}</svg>`;
+    });
+  }
+
   function render() {
     state.view = readView();
+    hydrateIcons(staticIconRoot);
     const viewNames = { dashboard: 'Dashboard', material: 'Generate Materi', questions: 'Generate Soal', grading: 'Auto Grading', history: 'Riwayat' };
     breadcrumbs.querySelector('strong').textContent = viewNames[state.view];
     root.innerHTML = ({ dashboard: renderDashboard, material: renderMaterial, questions: renderQuestions, grading: renderGrading, history: renderHistory }[state.view])();
+    hydrateIcons(root);
     document.querySelectorAll('[data-view]').forEach((element) => element.classList.toggle('is-active', element.dataset.view === state.view));
-    document.title = `${viewNames[state.view]} · Ruang Guru`;
+    document.title = `${viewNames[state.view]} · SDN Bangah`;
     if (state.view === 'material' && state.materialStep === 3 && !state.materialGenerating && !state.materialGenerated) beginMaterialGeneration();
     if (state.view === 'questions' && state.questionStep === 3 && !state.questionGenerating && !state.questionsGenerated) beginQuestionGeneration();
     if (state.scanner) renderScannerOverlay();
@@ -169,9 +219,9 @@
       <header class="view-header"><div><p class="eyebrow">Selasa, 20 Mei 2025 · Workspace guru</p><h1>Selamat datang, Bu Rina.</h1><p>Siap membuat pembelajaran hari ini? Mulai dari satu ide, lalu biarkan AI membantu merapikannya.</p></div><span class="badge badge--green">SDN Bangah No. 383 · Kelas 5A</span></header>
       <section class="dashboard-welcome" aria-labelledby="welcome-title"><div><p class="section-label">Ruang kerja hari ini</p><h2 id="welcome-title">Buat pembelajaran yang terasa dekat dengan siswa.</h2><p>AI membantu menyusun materi dan soal berdasarkan konteks yang kamu berikan. Kamu tetap menjadi editor dan pengambil keputusan terakhir.</p></div><div class="welcome-art" aria-hidden="true"><div class="welcome-art__note"><span>Prinsip hari ini</span><strong>Periksa<br />sebelum<br />digunakan.</strong></div></div></section>
       <section class="quick-section" aria-labelledby="quick-title"><div class="quick-section__head"><h2 id="quick-title">Apa yang ingin dibuat?</h2><p>Tiga langkah utama untuk mulai.</p></div><div class="quick-actions">
-        <button class="quick-action" type="button" data-view="material"><span class="quick-action__icon">+</span><span><strong>Buat materi dengan AI</strong><small>Dari topik dan tujuan belajar</small></span><span class="quick-action__arrow" aria-hidden="true">↗</span></button>
-        <button class="quick-action" type="button" data-view="questions"><span class="quick-action__icon">+</span><span><strong>Buat soal dengan AI</strong><small>Ulangan harian yang terarah</small></span><span class="quick-action__arrow" aria-hidden="true">↗</span></button>
-        <button class="quick-action" type="button" data-view="grading"><span class="quick-action__icon">⌁</span><span><strong>Scan & nilai jawaban</strong><small>Foto lembar, lihat hasilnya</small></span><span class="quick-action__arrow" aria-hidden="true">↗</span></button>
+        <button class="quick-action" type="button" data-view="material"><span class="quick-action__icon" data-icon="plus"></span><span><strong>Buat materi dengan AI</strong><small>Dari topik dan tujuan belajar</small></span><span class="quick-action__arrow" data-icon="arrow" aria-hidden="true"></span></button>
+        <button class="quick-action" type="button" data-view="questions"><span class="quick-action__icon" data-icon="plus"></span><span><strong>Buat soal dengan AI</strong><small>Ulangan harian yang terarah</small></span><span class="quick-action__arrow" data-icon="arrow" aria-hidden="true"></span></button>
+        <button class="quick-action" type="button" data-view="grading"><span class="quick-action__icon" data-icon="scan"></span><span><strong>Scan & nilai jawaban</strong><small>Foto lembar, lihat hasilnya</small></span><span class="quick-action__arrow" data-icon="arrow" aria-hidden="true"></span></button>
       </div></section>
       <div class="stat-strip" aria-label="Ringkasan aktivitas"><div class="stat-card"><span class="data-label">Total soal dibuat</span><strong class="stat-card__value">86</strong><span class="stat-card__label">sepanjang tahun ajaran</span></div><div class="stat-card"><span class="data-label">Materi dibuat</span><strong class="stat-card__value">12</strong><span class="stat-card__label">4 masih draft</span></div><div class="stat-card"><span class="data-label">Ulangan aktif</span><strong class="stat-card__value">03</strong><span class="stat-card__label">siap digunakan</span></div><div class="stat-card"><span class="data-label">Jawaban dinilai</span><strong class="stat-card__value">68</strong><span class="stat-card__label">lembar bulan ini</span></div></div>
       <div class="dashboard-grid"><section><div class="block-head"><h2>Aktivitas terbaru</h2><button class="button button--text" type="button" data-view="history">Lihat riwayat ↗</button></div><div class="activity-list">
@@ -201,31 +251,32 @@
 
   function renderMaterialConfig() {
     const config = state.materialConfig;
-    return `<div class="workflow-layout"><div class="workflow-main"><form class="form-card" data-form="material-config"><p class="section-label">Langkah 1 · Tentukan materi</p><h2>Mulai dari konteks belajar.</h2><p>Semakin spesifik konteksnya, semakin mudah guru meninjau hasil yang dibuat AI.</p><div class="form-grid">
+    const referenceResults = state.referenceResults.length ? `<div class="reference-results" aria-live="polite"><div class="reference-results__head"><strong>Hasil pencarian referensi</strong><span class="badge badge--blue">Simulasi Google Search</span></div>${state.referenceResults.map((book) => `<article class="reference-result ${state.selectedReference?.id === book.id ? 'is-selected' : ''}"><span class="reference-result__icon">PDF</span><div><strong>${escapeHtml(book.title)}</strong><small>${escapeHtml(book.author)}</small><p>${escapeHtml(book.match)} · ${escapeHtml(book.source)}</p></div><button class="mini-button ${state.selectedReference?.id === book.id ? 'mini-button--primary' : ''}" type="button" data-action="select-reference" data-reference-id="${book.id}">${state.selectedReference?.id === book.id ? 'Dipilih' : 'Pakai referensi'}</button></article>`).join('')}</div>` : '';
+    return `<div class="workflow-layout"><div class="workflow-main"><form class="form-card" data-form="material-config"><p class="section-label">Langkah 1 · Tentukan materi</p><h2>Mulai dari konteks belajar.</h2><p>Masukkan topik dan tujuan. Kamu juga dapat mencari buku referensi berdasarkan judul atau ISBN.</p><div class="form-grid">
       ${field('material-subject', 'Mata pelajaran', `<select name="subject"><option ${config.subject === 'IPA' ? 'selected' : ''}>IPA</option><option ${config.subject === 'Matematika' ? 'selected' : ''}>Matematika</option><option ${config.subject === 'Bahasa Indonesia' ? 'selected' : ''}>Bahasa Indonesia</option><option>PPKn</option></select>`)}
       ${field('material-grade', 'Kelas', `<select name="grade"><option ${config.grade === 'Kelas 4 SD' ? 'selected' : ''}>Kelas 4 SD</option><option ${config.grade === 'Kelas 5 SD' ? 'selected' : ''}>Kelas 5 SD</option><option ${config.grade === 'Kelas 6 SD' ? 'selected' : ''}>Kelas 6 SD</option></select>`)}
       ${field('material-topic', 'Topik / materi', `<input name="topic" value="${escapeHtml(config.topic)}" placeholder="Contoh: Sistem pernapasan manusia" required />`, true)}
       ${field('material-duration', 'Durasi pembelajaran', `<select name="duration"><option ${config.duration === '1 × 35 menit' ? 'selected' : ''}>1 × 35 menit</option><option ${config.duration === '2 × 35 menit' ? 'selected' : ''}>2 × 35 menit</option><option>3 × 35 menit</option></select>`)}
       ${field('material-objective', 'Tujuan pembelajaran', `<textarea name="objective" required>${escapeHtml(config.objective)}</textarea>`, true)}
       ${field('material-depth', 'Tingkat kedalaman', `<select name="depth"><option ${config.depth === 'Ringkas' ? 'selected' : ''}>Ringkas</option><option ${config.depth === 'Sesuai usia' ? 'selected' : ''}>Sesuai usia</option><option ${config.depth === 'Mendalam' ? 'selected' : ''}>Mendalam</option></select>`)}
-    </div><div class="form-field form-field--full"><label class="form-label" for="reference-upload">Referensi tambahan <span class="badge">Opsional</span></label><div class="upload-zone" id="reference-zone"><span class="upload-zone__icon">↑</span><span><strong>${state.materialReferenceFile ? escapeHtml(state.materialReferenceFile) : 'Tambahkan bahan referensi'}</strong><small>PDF · DOCX · PPTX · gambar · teks</small></span><button class="button button--quiet" type="button" data-action="reference-upload">Pilih file</button></div><p class="form-hint">AI akan menggunakan file ini sebagai referensi, bukan menggantikan peninjauan guru.</p></div><div class="form-footer"><button class="button button--primary" type="submit">Lanjut pilih format <span aria-hidden="true">→</span></button></div></form></div><aside class="workflow-aside"><div class="context-card"><span class="context-card__mark">✦</span><h3>AI yang paham konteks kelas.</h3><p>Masukkan tujuan dan tingkat kelas agar contoh, istilah, dan aktivitas terasa sesuai usia siswa.</p></div><div class="ai-note"><strong>Kontrol guru selalu aktif</strong><p>Hasil AI masih berupa draf. Kamu akan mendapat ruang untuk membaca, mengedit, dan menyetujui.</p></div></aside></div>`;
+    </div><section class="reference-search" aria-labelledby="reference-title"><div class="reference-search__head"><div><p class="form-label">Referensi buku <span class="badge">Opsional</span></p><h3 id="reference-title">Cari buku untuk menjadi pijakan materi.</h3></div><span class="reference-search__mark" aria-hidden="true" data-icon="search"></span></div><p class="form-hint">Cari berdasarkan nama buku atau ISBN. Sistem nantinya akan mencari sumber PDF melalui backend dan memeriksa sumbernya.</p><div class="reference-search__fields"><div class="form-field"><label class="form-label" for="reference-title-input">Nama buku / materi</label><input id="reference-title-input" name="referenceTitle" value="${escapeHtml(state.referenceQuery.title)}" placeholder="Contoh: Buku IPA Kelas 5" /></div><div class="form-field"><label class="form-label" for="reference-isbn">ISBN <span class="badge">Opsional</span></label><input id="reference-isbn" name="referenceIsbn" inputmode="numeric" value="${escapeHtml(state.referenceQuery.isbn)}" placeholder="978-…" /></div><button class="button button--quiet" type="button" data-action="search-reference">${state.referenceSearching ? 'Mencari…' : 'Cari buku'} <span data-icon="search" aria-hidden="true"></span></button></div>${state.referenceSearching ? '<div class="reference-search__loading">Mencari sumber referensi yang relevan…</div>' : referenceResults}${state.selectedReference ? `<div class="selected-reference"><span>✓</span><p><strong>Referensi terpilih</strong><br />${escapeHtml(state.selectedReference.title)}<small>Dipakai sebagai konteks tambahan, tetap perlu ditinjau guru.</small></p></div>` : ''}</section><div class="form-footer"><button class="button button--primary" type="submit">Lanjut pilih format <span data-icon="chevronRight" aria-hidden="true"></span></button></div></form></div><aside class="workflow-aside"><div class="context-card"><span class="context-card__mark" data-icon="spark"></span><h3>AI yang paham konteks kelas.</h3><p>Masukkan tujuan, tingkat kelas, dan bila perlu satu buku rujukan agar istilah serta contoh tetap relevan.</p></div><div class="ai-note"><strong>Sumber bukan keputusan akhir</strong><p>Hasil pencarian buku hanya menjadi referensi. Guru tetap memeriksa materi, sumber, dan kesesuaiannya sebelum digunakan.</p></div></aside></div>`;
   }
 
   function renderMaterialFormat() {
     const formats = [
       ['Ringkasan Materi', 'Poin inti yang cepat dibaca'], ['Materi Lengkap', 'Penjelasan bertahap dan utuh'], ['Modul Pembelajaran', 'Materi, kegiatan, dan latihan'], ['RPP / Lesson Plan', 'Rencana pembelajaran terstruktur'], ['Materi + Aktivitas', 'Konsep langsung dipraktikkan'], ['Materi + Contoh Soal', 'Materi dengan cek pemahaman'],
     ];
-    return `<div class="workflow-layout"><div class="workflow-main"><section class="form-card"><p class="section-label">Langkah 2 · Pilih format materi</p><h2>Bagaimana materi ini akan digunakan?</h2><p>Pilih satu format. Kamu masih dapat mengedit isinya setelah AI selesai menyusun.</p><div class="format-grid">${formats.map(([title, description]) => `<label class="format-option ${state.materialFormat === title ? 'is-selected' : ''}"><input type="radio" name="material-format" value="${title}" ${state.materialFormat === title ? 'checked' : ''} data-action="material-format" /><span class="format-option__mark">✓</span><span><strong>${title}</strong><small>${description}</small></span></label>`).join('')}</div><div class="form-footer"><button class="button button--quiet" type="button" data-action="material-back">Kembali</button><button class="button button--primary" type="button" data-action="material-generate">Susun dengan AI <span aria-hidden="true">✦</span></button></div></section></div><aside class="workflow-aside"><div class="ai-note"><strong>Format terpilih</strong><p><b>${state.materialFormat}</b><br />Cocok untuk ${escapeHtml(state.materialConfig.grade)} · ${escapeHtml(state.materialConfig.duration)}.</p></div><div class="context-card"><span class="context-card__mark">2</span><h3>Satu langkah lagi.</h3><p>Setelah disusun, setiap bagian dapat diperbaiki tanpa mengulang seluruh materi.</p></div></aside></div>`;
+    return `<div class="workflow-layout"><div class="workflow-main"><section class="form-card"><p class="section-label">Langkah 2 · Pilih format materi</p><h2>Bagaimana materi ini akan digunakan?</h2><p>Pilih satu format. Kamu masih dapat mengedit isinya setelah AI selesai menyusun.</p><div class="format-grid">${formats.map(([title, description]) => `<label class="format-option ${state.materialFormat === title ? 'is-selected' : ''}"><input type="radio" name="material-format" value="${title}" ${state.materialFormat === title ? 'checked' : ''} data-action="material-format" /><span class="format-option__mark">✓</span><span><strong>${title}</strong><small>${description}</small></span></label>`).join('')}</div><div class="form-footer"><button class="button button--quiet" type="button" data-action="material-back">Kembali</button><button class="button button--primary" type="button" data-action="material-generate">Susun dengan AI <span data-icon="spark" aria-hidden="true"></span></button></div></section></div><aside class="workflow-aside"><div class="ai-note"><strong>Format terpilih</strong><p><b>${state.materialFormat}</b><br />Cocok untuk ${escapeHtml(state.materialConfig.grade)} · ${escapeHtml(state.materialConfig.duration)}.</p></div><div class="context-card"><span class="context-card__mark">2</span><h3>Satu langkah lagi.</h3><p>Setelah disusun, setiap bagian dapat diperbaiki tanpa mengulang seluruh materi.</p></div></aside></div>`;
   }
 
   function renderMaterialGeneration() {
     const steps = ['Memahami tujuan pembelajaran', 'Menyesuaikan tingkat kelas', 'Menyusun struktur materi', 'Menyiapkan contoh dan aktivitas'];
-    return `<section class="generation-card" aria-live="polite"><div><div class="generation-card__illustration" aria-hidden="true"><span>✦</span></div><h2>AI sedang menyusun materi…</h2><p>Draf ini dibuat berdasarkan konteks yang kamu berikan. Prosesnya sebentar.</p><div class="generation-steps">${steps.map((item, index) => `<div class="generation-step ${index < state.materialGenerationIndex ? 'is-done' : index === state.materialGenerationIndex ? 'is-current' : ''}"><i>${index < state.materialGenerationIndex ? '✓' : index + 1}</i><span>${item}</span></div>`).join('')}</div></div></section>`;
+    return `<section class="generation-card" aria-live="polite"><div><div class="generation-card__illustration" aria-hidden="true"><span>✦</span></div><h2>AI sedang menyusun materi…</h2><p>Draf ini dibuat berdasarkan konteks yang kamu berikan. Prosesnya sebentar.</p><div class="generation-steps">${steps.map((item, index) => `<div class="generation-step ${index < state.materialGenerationIndex ? 'is-done' : index === state.materialGenerationIndex ? 'is-current' : ''}"><i>${index < state.materialGenerationIndex ? '✓' : index + 1}</i><span>${item}</span></div>`).join('')}</div><p class="generation-status">${state.materialGenerationIndex >= 4 ? 'Menunggu jawaban AI…' : 'Menyiapkan permintaan…'}</p><button class="button button--quiet" type="button" data-action="material-cancel">Batalkan dan kembali</button></div></section>`;
   }
 
   function renderMaterialPreview() {
     const config = state.materialConfig;
-    return `<div class="material-editor"><div class="review-banner"><span class="review-banner__icon">✦</span><div><strong>Draf AI siap diperiksa.</strong><p>Baca setiap bagian, ubah kalimat yang diperlukan, lalu simpan setelah sesuai dengan cara mengajarmu.</p></div></div><div class="editor-toolbar"><div class="editor-toolbar__title"><strong>${escapeHtml(config.subject)} · ${escapeHtml(config.topic)}</strong><small>${escapeHtml(state.materialFormat)} · ${escapeHtml(config.grade)}</small></div><div class="editor-toolbar__actions"><button class="mini-button ${state.materialEditMode ? 'mini-button--primary' : ''}" type="button" data-action="material-edit">${state.materialEditMode ? 'Selesai edit' : 'Edit semua'}</button><button class="mini-button" type="button" data-action="material-regenerate">Regenerate materi</button></div></div><article class="document-sheet"><div class="document-sheet__meta"><span>Draft materi · AI assisted</span><span>Perlu tinjauan guru</span></div><h2>${escapeHtml(config.topic)}</h2><div class="document-sheet__objective"><strong>Tujuan pembelajaran</strong><p>${escapeHtml(config.objective)}</p></div>${state.materialSections.map((section) => `<section class="document-section" data-material-section="${section.id}" contenteditable="${state.materialEditMode}"><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.body)}</p><div class="section-tools" contenteditable="false"><button class="mini-button" type="button" data-section-action="regenerate" data-section-id="${section.id}">Regenerate bagian</button><button class="mini-button" type="button" data-section-action="simplify" data-section-id="${section.id}">Sederhanakan</button><button class="mini-button" type="button" data-section-action="example" data-section-id="${section.id}">Tambah contoh</button></div></section>`).join('')}</article><div class="form-footer"><button class="button button--quiet" type="button" data-action="material-save-draft">Simpan sebagai draft</button><button class="button button--primary" type="button" data-action="material-use">Simpan & gunakan <span aria-hidden="true">→</span></button><button class="button button--coral" type="button" data-action="questions-from-material">Generate soal dari materi <span aria-hidden="true">✦</span></button></div></div>`;
+    return `<div class="material-editor"><div class="review-banner"><span class="review-banner__icon">✦</span><div><strong>Draf AI siap diperiksa.</strong><p>Baca setiap bagian, ubah kalimat yang diperlukan, lalu simpan setelah sesuai dengan cara mengajarmu.</p></div></div><div class="editor-toolbar"><div class="editor-toolbar__title"><strong>${escapeHtml(config.subject)} · ${escapeHtml(config.topic)}</strong><small>${escapeHtml(state.materialFormat)} · ${escapeHtml(config.grade)}</small></div><div class="editor-toolbar__actions"><button class="mini-button ${state.materialEditMode ? 'mini-button--primary' : ''}" type="button" data-action="material-edit">${state.materialEditMode ? 'Selesai edit' : 'Edit semua'}</button><button class="mini-button" type="button" data-action="material-regenerate">Regenerate materi</button></div></div><article class="document-sheet"><div class="document-sheet__meta"><span>Draft materi · AI assisted</span><span>Perlu tinjauan guru</span></div><h2>${escapeHtml(config.topic)}</h2><div class="document-sheet__objective"><strong>Tujuan pembelajaran</strong><p>${escapeHtml(config.objective)}</p></div>${state.materialSections.map((section) => `<section class="document-section" data-material-section="${section.id}" contenteditable="${state.materialEditMode}"><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.body)}</p><div class="section-tools" contenteditable="false"><button class="mini-button" type="button" data-section-action="regenerate" data-section-id="${section.id}">Regenerate bagian</button><button class="mini-button" type="button" data-section-action="simplify" data-section-id="${section.id}">Sederhanakan</button><button class="mini-button" type="button" data-section-action="example" data-section-id="${section.id}">Tambah contoh</button></div></section>`).join('')}</article><div class="form-footer"><button class="button button--quiet" type="button" data-action="material-save-draft">Simpan sebagai draft</button><button class="button button--primary" type="button" data-action="material-use">Simpan & gunakan <span data-icon="chevronRight" aria-hidden="true"></span></button><button class="button button--coral" type="button" data-action="questions-from-material">Generate soal dari materi <span data-icon="spark" aria-hidden="true"></span></button></div></div>`;
   }
 
   function field(id, label, control, full = false) {
@@ -250,12 +301,12 @@
       ${field('question-total', 'Jumlah soal', `<input name="total" type="number" min="1" max="50" value="${config.total}" required />`)}
       ${field('question-duration', 'Durasi ujian', `<select name="duration"><option ${config.duration === '25 menit' ? 'selected' : ''}>25 menit</option><option ${config.duration === '35 menit' ? 'selected' : ''}>35 menit</option><option>45 menit</option></select>`)}
       ${field('question-objective', 'Tujuan pembelajaran', `<textarea name="objective" required>${escapeHtml(config.objective)}</textarea>`, true)}
-    </div><div class="type-picker"><p class="form-label">Komposisi jenis soal</p><div class="type-row"><label for="multiple-count">Pilihan Ganda</label><input id="multiple-count" name="multiple" type="number" min="0" value="${config.multiple}" /></div><div class="type-row"><label for="short-count">Isian Singkat</label><input id="short-count" name="short" type="number" min="0" value="${config.short}" /></div><div class="type-row"><label for="essay-count">Essay</label><input id="essay-count" name="essay" type="number" min="0" value="${config.essay}" /></div></div><div class="form-footer"><button class="button button--primary" type="submit">Lanjut atur kesulitan <span aria-hidden="true">→</span></button></div></form></div><aside class="workflow-aside"><div class="context-card"><span class="context-card__mark">✦</span><h3>Soal yang punya tujuan.</h3><p>Setiap soal demo akan menampilkan kompetensi, kunci jawaban, penjelasan, dan tingkat kesulitannya.</p></div><div class="ai-note"><strong>Bisa mulai dari materi</strong><p>Setelah materi disimpan, gunakan tombol <b>Generate soal dari materi</b> agar topik terisi otomatis.</p></div></aside></div>`;
+    </div><div class="type-picker"><p class="form-label">Komposisi jenis soal</p><div class="type-row"><label for="multiple-count">Pilihan Ganda</label><input id="multiple-count" name="multiple" type="number" min="0" value="${config.multiple}" /></div><div class="type-row"><label for="short-count">Isian Singkat</label><input id="short-count" name="short" type="number" min="0" value="${config.short}" /></div><div class="type-row"><label for="essay-count">Essay</label><input id="essay-count" name="essay" type="number" min="0" value="${config.essay}" /></div></div><div class="form-footer"><button class="button button--primary" type="submit">Lanjut atur kesulitan <span data-icon="chevronRight" aria-hidden="true"></span></button></div></form></div><aside class="workflow-aside"><div class="context-card"><span class="context-card__mark" data-icon="spark"></span><h3>Soal yang punya tujuan.</h3><p>Setiap soal demo akan menampilkan kompetensi, kunci jawaban, penjelasan, dan tingkat kesulitannya.</p></div><div class="ai-note"><strong>Bisa mulai dari materi</strong><p>Setelah materi disimpan, gunakan tombol <b>Generate soal dari materi</b> agar topik terisi otomatis.</p></div></aside></div>`;
   }
 
   function renderQuestionDifficulty() {
     const levels = [['Mudah', 'Konsep dasar dan pengenalan'], ['Sedang', 'Penerapan dalam situasi baru'], ['Sulit', 'Penalaran dan penjelasan'], ['Campuran', 'Distribusi yang seimbang']];
-    return `<div class="question-config"><section class="form-card"><p class="section-label">Langkah 2 · Tingkat kesulitan</p><h2>Atur tantangannya.</h2><p>Pilih campuran yang membantu siswa menunjukkan pemahaman, bukan sekadar menghafal.</p><div class="difficulty-picker">${levels.map(([name, description]) => `<label class="difficulty-option"><input type="radio" name="difficulty" value="${name}" ${state.questionDifficulty === name ? 'checked' : ''} data-action="question-difficulty" /><span><strong>${name}</strong><small>${description}</small></span><span class="difficulty-bar"><i style="width: ${name === 'Mudah' ? '30%' : name === 'Sedang' ? '60%' : name === 'Sulit' ? '100%' : '76%'}"></i></span></label>`).join('')}</div><div class="distribution-card"><div class="block-head"><h2>Distribusi yang disarankan</h2><p>Masih bisa diubah</p></div><div class="distribution-bars"><div class="distribution-bar"><span>Mudah</span><span class="distribution-bar__track"><i class="distribution-bar__fill" style="width:${state.difficultyDistribution.easy}%"></i></span><strong>${state.difficultyDistribution.easy}%</strong></div><div class="distribution-bar"><span>Sedang</span><span class="distribution-bar__track"><i class="distribution-bar__fill" style="width:${state.difficultyDistribution.medium}%"></i></span><strong>${state.difficultyDistribution.medium}%</strong></div><div class="distribution-bar"><span>Sulit</span><span class="distribution-bar__track"><i class="distribution-bar__fill" style="width:${state.difficultyDistribution.hard}%"></i></span><strong>${state.difficultyDistribution.hard}%</strong></div></div></div><div class="form-footer"><button class="button button--quiet" type="button" data-action="questions-back">Kembali</button><button class="button button--primary" type="button" data-action="questions-generate">Buat soal dengan AI <span aria-hidden="true">✦</span></button></div></section><aside class="config-side"><div class="ai-note"><strong>Bahasa yang digunakan</strong><p>Soal dibuat dalam Bahasa Indonesia dan disesuaikan untuk ${escapeHtml(state.questionConfig.grade)}.</p></div><div class="review-banner"><span class="review-banner__icon">✓</span><div><strong>Guru tetap memeriksa.</strong><p>AI quality check akan membantu menandai soal yang perlu dilihat lagi.</p></div></div></aside></div>`;
+    return `<div class="question-config"><section class="form-card"><p class="section-label">Langkah 2 · Tingkat kesulitan</p><h2>Atur tantangannya.</h2><p>Pilih campuran yang membantu siswa menunjukkan pemahaman, bukan sekadar menghafal.</p><div class="difficulty-picker">${levels.map(([name, description]) => `<label class="difficulty-option"><input type="radio" name="difficulty" value="${name}" ${state.questionDifficulty === name ? 'checked' : ''} data-action="question-difficulty" /><span><strong>${name}</strong><small>${description}</small></span><span class="difficulty-bar"><i style="width: ${name === 'Mudah' ? '30%' : name === 'Sedang' ? '60%' : name === 'Sulit' ? '100%' : '76%'}"></i></span></label>`).join('')}</div><div class="distribution-card"><div class="block-head"><h2>Distribusi yang disarankan</h2><p>Masih bisa diubah</p></div><div class="distribution-bars"><div class="distribution-bar"><span>Mudah</span><span class="distribution-bar__track"><i class="distribution-bar__fill" style="width:${state.difficultyDistribution.easy}%"></i></span><strong>${state.difficultyDistribution.easy}%</strong></div><div class="distribution-bar"><span>Sedang</span><span class="distribution-bar__track"><i class="distribution-bar__fill" style="width:${state.difficultyDistribution.medium}%"></i></span><strong>${state.difficultyDistribution.medium}%</strong></div><div class="distribution-bar"><span>Sulit</span><span class="distribution-bar__track"><i class="distribution-bar__fill" style="width:${state.difficultyDistribution.hard}%"></i></span><strong>${state.difficultyDistribution.hard}%</strong></div></div></div><div class="form-footer"><button class="button button--quiet" type="button" data-action="questions-back">Kembali</button><button class="button button--primary" type="button" data-action="questions-generate">Buat soal dengan AI <span data-icon="spark" aria-hidden="true"></span></button></div></section><aside class="config-side"><div class="ai-note"><strong>Bahasa yang digunakan</strong><p>Soal dibuat dalam Bahasa Indonesia dan disesuaikan untuk ${escapeHtml(state.questionConfig.grade)}.</p></div><div class="review-banner"><span class="review-banner__icon">✓</span><div><strong>Guru tetap memeriksa.</strong><p>AI quality check akan membantu menandai soal yang perlu dilihat lagi.</p></div></div></aside></div>`;
   }
 
   function renderQuestionGeneration() {
@@ -265,7 +316,7 @@
 
   function renderQuestionReview() {
     const total = state.questionConfig.total;
-    return `<div class="questions-review"><div class="review-banner"><span class="review-banner__icon">✦</span><div><strong>${state.questions.length} contoh soal siap ditinjau dari ${total} soal.</strong><p>Semua kolom di bawah dapat diubah. Soal dengan tanda perhatian membutuhkan pemeriksaan lebih lanjut.</p></div></div><div class="editor-toolbar"><div class="editor-toolbar__title"><strong>${escapeHtml(state.questionConfig.subject)} · ${escapeHtml(state.questionConfig.topic)}</strong><small>${total} soal · ${escapeHtml(state.questionConfig.grade)}</small></div><div class="editor-toolbar__actions"><button class="mini-button" type="button" data-action="question-add">Tambah manual</button><button class="mini-button mini-button--primary" type="button" data-action="question-more">Generate soal tambahan</button></div></div><div class="questions-list" id="questions-list">${state.questions.map((question, index) => renderQuestionCard(question, index)).join('')}</div><div class="builder-summary"><div class="builder-summary__numbers"><span><strong>${total}</strong> soal</span><span><strong>${state.questionConfig.multiple}</strong> pilihan ganda</span><span><strong>${state.questionConfig.short}</strong> isian</span><span><strong>${state.questionConfig.essay}</strong> essay</span><span>Perkiraan <strong>${escapeHtml(state.questionConfig.duration)}</strong></span></div><div class="button-row"><button class="button button--quiet" type="button" data-action="question-save">Simpan draft</button><button class="button button--primary" type="button" data-action="question-publish">Terbitkan ulangan <span aria-hidden="true">↗</span></button></div></div></div>`;
+    return `<div class="questions-review"><div class="review-banner"><span class="review-banner__icon">✦</span><div><strong>${state.questions.length} contoh soal siap ditinjau dari ${total} soal.</strong><p>Semua kolom di bawah dapat diubah. Soal dengan tanda perhatian membutuhkan pemeriksaan lebih lanjut.</p></div></div><div class="editor-toolbar"><div class="editor-toolbar__title"><strong>${escapeHtml(state.questionConfig.subject)} · ${escapeHtml(state.questionConfig.topic)}</strong><small>${total} soal · ${escapeHtml(state.questionConfig.grade)}</small></div><div class="editor-toolbar__actions"><button class="mini-button" type="button" data-action="question-add">Tambah manual</button><button class="mini-button mini-button--primary" type="button" data-action="question-more">Generate soal tambahan</button></div></div><div class="questions-list" id="questions-list">${state.questions.map((question, index) => renderQuestionCard(question, index)).join('')}</div><div class="builder-summary"><div class="builder-summary__numbers"><span><strong>${total}</strong> soal</span><span><strong>${state.questionConfig.multiple}</strong> pilihan ganda</span><span><strong>${state.questionConfig.short}</strong> isian</span><span><strong>${state.questionConfig.essay}</strong> essay</span><span>Perkiraan <strong>${escapeHtml(state.questionConfig.duration)}</strong></span></div><div class="button-row"><button class="button button--quiet" type="button" data-action="question-save">Simpan draft</button><button class="button button--primary" type="button" data-action="question-publish">Terbitkan ulangan <span data-icon="arrow" aria-hidden="true"></span></button></div></div></div>`;
   }
 
   function renderQuestionCard(question, index) {
@@ -278,7 +329,7 @@
     const head = `<header class="view-header"><div><p class="eyebrow">AI Learning Generator · penilaian</p><h1>Nilai jawaban tanpa mengulang semuanya.</h1><p>Upload foto lembar jawaban, biarkan sistem membaca, lalu periksa hasil yang membutuhkan perhatian.</p></div><span class="badge badge--blue">Computer vision · teacher review</span></header>`;
     if (state.gradingStage === 'processing') return `<div class="view grading-view">${head}${renderGradingProcessing()}</div>`;
     if (state.gradingStage === 'result' && state.gradingResults) return `<div class="view grading-view">${head}${renderGradingResult()}</div>`;
-    return `<div class="view grading-view">${head}<div class="grading-layout"><section class="upload-card"><div><p class="section-label">Langkah 1 · Upload / scan</p><h2>Mulai dari lembar jawaban.</h2><p class="form-hint">Satu atau beberapa foto dapat diproses sekaligus. Pastikan seluruh lembar terlihat dan tidak terlalu buram.</p></div><label class="dropzone" id="dropzone" for="sheet-upload"><span class="dropzone__icon">↑</span><strong>Seret foto lembar jawaban ke sini</strong><p>atau pilih file dari perangkat</p><small>JPG · PNG · PDF · bisa beberapa file</small></label><div class="button-row"><button class="button button--primary" type="button" data-action="choose-sheet">Upload foto</button><button class="button button--quiet" type="button" data-action="open-scanner">Buka kamera</button></div><div class="grading-options"><div><label class="form-label" for="grading-assessment">Pilih ulangan</label><select id="grading-assessment"><option>Ulangan Harian Matematika — Pecahan</option><option>Latihan IPA — Organ Tubuh</option></select></div><span class="badge badge--green">Kunci jawaban tersedia</span></div></section><aside class="process-card"><h3>Yang akan dilakukan sistem</h3><p class="form-hint">Setiap tahap dapat ditinjau ulang jika hasilnya tidak meyakinkan.</p><ol class="process-list"><li><i>1</i>Mendeteksi lembar jawaban</li><li><i>2</i>Membaca identitas siswa</li><li><i>3</i>Mendeteksi jawaban</li><li><i>4</i>Mencocokkan dengan kunci</li><li><i>5</i>Menghitung nilai</li></ol><div class="ai-note" style="margin-top: 1.5rem"><strong>Perlu foto ulang?</strong><p>Jawaban dengan confidence sedang akan diberi tanda agar guru bisa melakukan review manual.</p></div></aside></div><section class="empty-state" style="margin-top: 2rem"><div><span class="empty-state__mark">⌁</span><h3>Belum ada hasil penilaian hari ini.</h3><p>Upload lembar jawaban untuk melihat ringkasan nilai siswa.</p></div></section></div>`;
+    return `<div class="view grading-view">${head}<div class="grading-layout"><section class="upload-card"><div><p class="section-label">Langkah 1 · Upload / scan</p><h2>Mulai dari lembar jawaban.</h2><p class="form-hint">Satu atau beberapa foto dapat diproses sekaligus. Pastikan seluruh lembar terlihat dan tidak terlalu buram.</p></div><label class="dropzone" id="dropzone" for="sheet-upload"><span class="dropzone__icon" data-icon="upload"></span><strong>Seret foto lembar jawaban ke sini</strong><p>atau pilih file dari perangkat</p><small>JPG · PNG · PDF · bisa beberapa file</small></label><div class="button-row"><button class="button button--primary" type="button" data-action="choose-sheet"><span data-icon="upload"></span> Upload foto</button><button class="button button--quiet" type="button" data-action="open-scanner"><span data-icon="camera"></span> Buka kamera</button></div><div class="grading-options"><div><label class="form-label" for="grading-assessment">Pilih ulangan</label><select id="grading-assessment"><option>Ulangan Harian Matematika — Pecahan</option><option>Latihan IPA — Organ Tubuh</option></select></div><span class="badge badge--green">Kunci jawaban tersedia</span></div></section><aside class="process-card"><h3>Yang akan dilakukan sistem</h3><p class="form-hint">Setiap tahap dapat ditinjau ulang jika hasilnya tidak meyakinkan.</p><ol class="process-list"><li><i>1</i>Mendeteksi lembar jawaban</li><li><i>2</i>Membaca identitas siswa</li><li><i>3</i>Mendeteksi jawaban</li><li><i>4</i>Mencocokkan dengan kunci</li><li><i>5</i>Menghitung nilai</li></ol><div class="ai-note" style="margin-top: 1.5rem"><strong>Perlu foto ulang?</strong><p>Jawaban dengan confidence sedang akan diberi tanda agar guru bisa melakukan review manual.</p></div></aside></div><section class="empty-state" style="margin-top: 2rem"><div><span class="empty-state__mark">⌁</span><h3>Belum ada hasil penilaian hari ini.</h3><p>Upload lembar jawaban untuk melihat ringkasan nilai siswa.</p></div></section></div>`;
   }
 
   function renderGradingProcessing() {
@@ -316,9 +367,17 @@
       state.materialGenerationIndex = index + 1;
       render();
     }
-    const generated = await mockServices.generateMaterial(state.materialConfig);
-    state.materialSections = generated.sections;
-    state.materialGenerating = false;
+    try {
+      const generated = await mockServices.generateMaterial(state.materialConfig);
+      state.materialSections = generated.sections;
+      state.materialGenerating = false;
+    } catch (error) {
+      state.materialGenerating = false;
+      state.materialStep = 2;
+      showToast(error.message);
+      render();
+      return;
+    }
     state.materialGenerated = true;
     state.materialStep = 4;
     showToast('Draf materi selesai dibuat. Silakan periksa setiap bagian.');
@@ -334,8 +393,16 @@
       state.questionGenerationIndex = index + 1;
       render();
     }
-    state.questions = await mockServices.generateQuestions(state.questionConfig);
-    state.questionGenerating = false;
+    try {
+      state.questions = await mockServices.generateQuestions(state.questionConfig);
+      state.questionGenerating = false;
+    } catch (error) {
+      state.questionGenerating = false;
+      state.questionStep = 2;
+      showToast(error.message);
+      render();
+      return;
+    }
     state.questionsGenerated = true;
     state.questionStep = 4;
     showToast('Contoh soal selesai dibuat. Periksa kualitasnya sebelum digunakan.');
@@ -471,6 +538,7 @@
       overlay.innerHTML = `<div class="scanner-card"><p class="eyebrow">Auto Grading · kamera</p><h2>Posisikan lembar jawaban di dalam kotak.</h2><div class="scanner-preview"><div class="scanner-preview__sheet" aria-hidden="true"></div></div><p>Letakkan kamera sejajar dengan kertas dan pastikan pencahayaan cukup.</p><div class="scanner-actions"><button class="button button--quiet" type="button" data-action="scanner-cancel">Tutup kamera</button><button class="button button--coral" type="button" data-action="scanner-capture">Ambil foto <span aria-hidden="true">●</span></button><button class="button button--quiet" type="button" data-action="scanner-demo">Gunakan contoh foto</button></div></div>`;
     }
     document.body.appendChild(overlay);
+    hydrateIcons(overlay);
   }
 
   function studentResult(name) {
@@ -484,6 +552,11 @@
       navigate(viewTrigger.dataset.view);
       return;
     }
+    const sectionTrigger = event.target.closest('[data-section-action]');
+    if (sectionTrigger) {
+      updateMaterialSection(sectionTrigger.dataset.sectionId, sectionTrigger.dataset.sectionAction);
+      return;
+    }
     const actionTrigger = event.target.closest('[data-action]');
     if (!actionTrigger) return;
     const action = actionTrigger.dataset.action;
@@ -494,23 +567,24 @@
     if (action === 'show-notifications') showDialog('notifications');
     if (action === 'show-school-menu') showDialog('school');
     if (action === 'close-dialog') closeDialog();
-    if (action === 'material-back') { state.materialStep = 1; render(); }
+    if (action === 'material-back' || action === 'material-cancel') { state.materialStep = action === 'material-cancel' ? 2 : 1; state.materialGenerating = false; render(); }
     if (action === 'material-generate') { state.materialStep = 3; render(); }
     if (action === 'material-edit') { state.materialEditMode = !state.materialEditMode; render(); }
     if (action === 'material-regenerate') { state.materialGenerated = false; state.materialGenerating = false; state.materialStep = 3; render(); }
-    if (action === 'material-save-draft') { state.materialSaved = true; showToast('Materi disimpan sebagai draft.'); }
-    if (action === 'material-use') { state.materialSaved = true; showToast('Materi disimpan dan siap digunakan di kelas.'); }
+    if (action === 'material-save-draft') { state.materialSaved = true; saveMaterialToWorkspace(); }
+    if (action === 'material-use') { state.materialSaved = true; saveMaterialToWorkspace('Materi disimpan dan siap digunakan di kelas.'); }
     if (action === 'questions-from-material') { state.questionConfig.subject = state.materialConfig.subject; state.questionConfig.grade = state.materialConfig.grade; state.questionConfig.topic = state.materialConfig.topic; state.questionConfig.objective = state.materialConfig.objective; state.questionStep = 1; state.questionsGenerated = false; navigate('questions'); }
     if (action === 'questions-back') { state.questionStep = 1; render(); }
     if (action === 'questions-generate') { state.questionStep = 3; render(); }
     if (action === 'question-add') { state.questions.push({ id: `q-${Date.now()}`, type: 'Pilihan Ganda', text: 'Tulis pertanyaan baru di sini.', options: ['Pilihan A', 'Pilihan B', 'Pilihan C', 'Pilihan D'], correct: 'A', difficulty: 'Sedang', objective: 'Tambahkan tujuan pembelajaran', explanation: 'Tambahkan penjelasan jawaban.', quality: 'warning' }); showToast('Soal manual ditambahkan ke bagian akhir.'); render(); }
     if (action === 'question-more') { state.questions.push({ id: `q-${Date.now()}`, type: 'Pilihan Ganda', text: 'Manakah contoh pecahan yang tepat dalam kehidupan sehari-hari?', options: ['1/4', '4/0', '5/1', '8/2'], correct: 'A', difficulty: 'Mudah', objective: 'Menghubungkan pecahan dengan konteks sehari-hari', explanation: 'Satu dari empat bagian sama besar ditulis sebagai 1/4.', quality: 'ok' }); showToast('Satu soal tambahan dibuat.'); render(); }
-    if (action === 'question-save') showToast('Ulangan disimpan sebagai draft.');
+    if (action === 'question-save') saveQuestionsToWorkspace();
     if (action === 'question-publish') { showDialog('help'); showToast('Prototype: ulangan siap masuk ke tahap publikasi setelah konfirmasi guru.'); }
-    if (action === 'quality-fix' || action.startsWith('question-')) questionAction(action, actionTrigger.dataset.id);
+    if (action === 'quality-fix' || ['question-edit', 'question-regenerate', 'question-duplicate', 'question-delete'].includes(action)) questionAction(action, actionTrigger.dataset.id);
     if (action === 'choose-sheet') sheetUpload.click();
     if (action === 'open-scanner') openScanner();
-    if (action === 'reference-upload') getReferenceInput().click();
+    if (action === 'search-reference') searchReference();
+    if (action === 'select-reference') selectReference(actionTrigger.dataset.referenceId);
     if (action === 'ai-analysis') beginAnalysis();
     if (action === 'grading-reset') resetGrading();
     if (action === 'inspect-student') { const student = studentResult(actionTrigger.dataset.student); showDialog('student', student); }
@@ -552,29 +626,27 @@
   document.addEventListener('change', (event) => {
     if (event.target.id === 'sheet-upload') handleFiles(event.target.files);
     if (event.target.id === 'camera-upload' && event.target.files[0] && state.scanner) { state.scanner.file = event.target.files[0]; state.scanner.stage = 'confirm'; renderScannerOverlay(); }
-    if (event.target.id === 'reference-upload' && event.target.files[0]) { state.materialReferenceFile = event.target.files[0].name; showToast('File referensi ditambahkan ke konteks materi.'); render(); }
     if (event.target.matches('[data-history-filter]')) { state.historyFilter[event.target.dataset.historyFilter] = event.target.value; render(); }
     if (event.target.matches('[data-q-field]')) { updateQuestionField(event.target); }
   });
 
   document.addEventListener('dragover', (event) => {
-    const dropzone = event.target.closest('#dropzone, #reference-zone');
+    const dropzone = event.target.closest('#dropzone');
     if (!dropzone) return;
     event.preventDefault();
     dropzone.classList.add('is-dragging');
   });
 
   document.addEventListener('dragleave', (event) => {
-    event.target.closest('#dropzone, #reference-zone')?.classList.remove('is-dragging');
+    event.target.closest('#dropzone')?.classList.remove('is-dragging');
   });
 
   document.addEventListener('drop', (event) => {
-    const dropzone = event.target.closest('#dropzone, #reference-zone');
+    const dropzone = event.target.closest('#dropzone');
     if (!dropzone) return;
     event.preventDefault();
     dropzone.classList.remove('is-dragging');
-    if (dropzone.id === 'dropzone') handleFiles(event.dataTransfer.files);
-    if (dropzone.id === 'reference-zone' && event.dataTransfer.files[0]) { state.materialReferenceFile = event.dataTransfer.files[0].name; showToast('File referensi ditambahkan ke konteks materi.'); render(); }
+    handleFiles(event.dataTransfer.files);
   });
 
   document.addEventListener('dragstart', (event) => {
@@ -599,29 +671,70 @@
     render();
   });
 
+  async function saveMaterialToWorkspace(successMessage = 'Materi AI disimpan sebagai draft.') {
+    try {
+      const response = await requestAI('/api/materials', { title: `${state.materialConfig.subject} · ${state.materialConfig.topic}`, subject: state.materialConfig.subject, grade: state.materialConfig.grade, summary: state.materialSections[0]?.body || `Materi ${state.materialConfig.topic}`, content: state.materialSections.map((section) => `${section.title}\n${section.body}`).join('\n\n'), sections: state.materialSections, status: 'Draft', updatedAt: 'Hari ini' });
+      if (!response?.id) throw new Error('Materi belum berhasil disimpan.');
+      showToast(successMessage);
+    } catch (error) { showToast(error.message); }
+  }
+
+  async function saveQuestionsToWorkspace() {
+    try {
+      const assessment = await requestAI('/api/assessments', { title: `${state.questionConfig.subject} — ${state.questionConfig.topic}`, subject: state.questionConfig.subject, grade: state.questionConfig.grade, questionCount: state.questions.length || state.questionConfig.total, duration: state.questionConfig.duration, status: 'Draft', updatedAt: 'Hari ini' });
+      await Promise.all(state.questions.map(({ id: _id, ...question }, index) => requestAI('/api/questions', { ...question, assessmentId: assessment.id, number: index + 1 })));
+      showToast('Ulangan dan soal AI disimpan sebagai draft.');
+    } catch (error) { showToast(error.message); }
+  }
+
   async function beginAnalysis() {
     if (state.gradingAnalysisLoading || !state.gradingResults) return;
     state.gradingAnalysisLoading = true;
     showToast('AI sedang membaca pola dari hasil penilaian.');
     render();
-    state.gradingAnalysis = await mockServices.analyzeAssessment(state.gradingResults.results);
-    state.gradingAnalysisLoading = false;
+    try {
+      state.gradingAnalysis = await mockServices.analyzeAssessment(state.gradingResults.results);
+      state.gradingAnalysisLoading = false;
+      render();
+    } catch (error) {
+      state.gradingAnalysisLoading = false;
+      showToast(error.message);
+      render();
+    }
+  }
+
+  async function searchReference() {
+    const titleInput = document.querySelector('#reference-title-input');
+    const isbnInput = document.querySelector('#reference-isbn');
+    const title = titleInput?.value.trim() || '';
+    const isbn = isbnInput?.value.trim() || '';
+    if (!title && !isbn) {
+      showToast('Masukkan nama buku atau ISBN untuk mulai mencari.');
+      titleInput?.focus();
+      return;
+    }
+    state.referenceQuery = { title, isbn };
+    state.referenceSearching = true;
+    state.referenceResults = [];
+    render();
+    try {
+      state.referenceResults = await mockServices.searchReferenceBook(state.referenceQuery);
+      state.referenceSearching = false;
+      showToast('Referensi ditemukan. Verifikasi sumber sebelum digunakan.');
+    } catch (error) {
+      state.referenceSearching = false;
+      showToast(error.message);
+    }
     render();
   }
 
-  function getReferenceInput() {
-    let input = document.querySelector('#reference-upload');
-    if (!input) {
-      input = document.createElement('input');
-      input.id = 'reference-upload';
-      input.type = 'file';
-      input.accept = '.pdf,.docx,.pptx,image/*,.txt';
-      input.hidden = true;
-      document.body.appendChild(input);
-    }
-    return input;
+  function selectReference(id) {
+    state.selectedReference = state.referenceResults.find((book) => book.id === id) || null;
+    if (state.selectedReference) showToast('Referensi dipilih sebagai konteks tambahan.');
+    render();
   }
 
   window.addEventListener('hashchange', render);
+  hydrateIcons(document);
   render();
 })();
