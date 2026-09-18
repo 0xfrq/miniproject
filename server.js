@@ -54,7 +54,7 @@ app.post('/api/ai/generate-material', async (req, res) => {
     const text = await ai.askModel([
       { role: 'system', content: 'Kamu adalah asisten guru SD berbahasa Indonesia. Buat draf materi yang akurat, sesuai usia, praktis, dan selalu perlu ditinjau guru. Balas HANYA JSON valid tanpa markdown dengan bentuk {"sections":[{"id":"pendahuluan","title":"Pendahuluan","body":"..."},{"id":"inti","title":"Materi Inti","body":"..."},{"id":"aktivitas","title":"Aktivitas Pembelajaran","body":"..."},{"id":"rangkuman","title":"Rangkuman","body":"..."},{"id":"latihan","title":"Latihan","body":"..."}]}.' },
       { role: 'user', content: JSON.stringify({ tugas: 'Buat materi pembelajaran', mataPelajaran: subject, kelas: grade, topik: topic, tujuan: objective, durasi: duration, kedalaman: depth, format: format || 'Materi + Aktivitas', referensi: reference || null }) },
-    ], { temperature: 0.45, maxTokens: 6000, model: 'ag/gemini-3.7-flash-high', timeoutMs: 90_000 });
+    ], { temperature: 0.45, maxTokens: 6000, timeoutMs: 90_000 });
     const data = ai.parseJson(text);
     if (!Array.isArray(data.sections)) throw new Error('sections tidak ditemukan');
     return res.json({ title: `${subject} · ${topic}`, sections: data.sections });

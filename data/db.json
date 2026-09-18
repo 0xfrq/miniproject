@@ -129,6 +129,43 @@
   ],
   "materials": [
     {
+      "id": "material-27e34a66",
+      "title": "IPA · Sistem pernapasan manusia",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "summary": "Halo anak-anak! Setiap saat kita bernapas tanpa disadari. Bernapas adalah proses menghirup oksigen (O2) dan mengeluarkan karbon dioksida (CO2). Mari kita pelajari organ apa saja yang bekerja agar kita bisa bernapas dengan lancar.",
+      "content": "Pendahuluan\nHalo anak-anak! Setiap saat kita bernapas tanpa disadari. Bernapas adalah proses menghirup oksigen (O2) dan mengeluarkan karbon dioksida (CO2). Mari kita pelajari organ apa saja yang bekerja agar kita bisa bernapas dengan lancar.\n\nMateri Inti\nOrgan pernapasan manusia terdiri dari: 1. Hidung: Tempat masuknya udara, menyaring debu dengan rambut hidung, dan mengatur suhu udara. 2. Tenggorokan (Faring & Laring): Saluran penghubung hidung ke paru-paru. 3. Trakea (Batang Tenggorokan): Saluran bercabang yang menyaring benda asing. 4. Bronkus: Cabang trakea yang menuju paru-paru kanan dan kiri. 5. Bronkiolus: Cabang lebih kecil dari bronkus. 6. Alveolus: Tempat pertukaran oksigen dan karbon dioksida.\n\nAktivitas Pembelajaran\n1. Praktik menarik napas dalam-dalam dan merasakan gerakan dada. 2. Membuat diagram alur pernapasan sederhana di kertas karton. 3. Diskusi kelompok tentang cara menjaga kesehatan organ pernapasan (seperti tidak merokok dan menanam pohon).\n\nRangkuman\nSistem pernapasan manusia dimulai dari hidung, tenggorokan, trakea, bronkus, bronkiolus, hingga berakhir di alveolus. Fungsi utamanya adalah mengambil oksigen yang dibutuhkan tubuh untuk energi dan membuang sisa pernapasan berupa karbon dioksida.\n\nLatihan\n1. Sebutkan urutan organ pernapasan dari yang paling luar hingga ke dalam! 2. Apa fungsi utama dari alveolus? 3. Mengapa kita disarankan bernapas melalui hidung daripada mulut?",
+      "sections": [
+        {
+          "id": "pendahuluan",
+          "title": "Pendahuluan",
+          "body": "Halo anak-anak! Setiap saat kita bernapas tanpa disadari. Bernapas adalah proses menghirup oksigen (O2) dan mengeluarkan karbon dioksida (CO2). Mari kita pelajari organ apa saja yang bekerja agar kita bisa bernapas dengan lancar."
+        },
+        {
+          "id": "inti",
+          "title": "Materi Inti",
+          "body": "Organ pernapasan manusia terdiri dari: 1. Hidung: Tempat masuknya udara, menyaring debu dengan rambut hidung, dan mengatur suhu udara. 2. Tenggorokan (Faring & Laring): Saluran penghubung hidung ke paru-paru. 3. Trakea (Batang Tenggorokan): Saluran bercabang yang menyaring benda asing. 4. Bronkus: Cabang trakea yang menuju paru-paru kanan dan kiri. 5. Bronkiolus: Cabang lebih kecil dari bronkus. 6. Alveolus: Tempat pertukaran oksigen dan karbon dioksida."
+        },
+        {
+          "id": "aktivitas",
+          "title": "Aktivitas Pembelajaran",
+          "body": "1. Praktik menarik napas dalam-dalam dan merasakan gerakan dada. 2. Membuat diagram alur pernapasan sederhana di kertas karton. 3. Diskusi kelompok tentang cara menjaga kesehatan organ pernapasan (seperti tidak merokok dan menanam pohon)."
+        },
+        {
+          "id": "rangkuman",
+          "title": "Rangkuman",
+          "body": "Sistem pernapasan manusia dimulai dari hidung, tenggorokan, trakea, bronkus, bronkiolus, hingga berakhir di alveolus. Fungsi utamanya adalah mengambil oksigen yang dibutuhkan tubuh untuk energi dan membuang sisa pernapasan berupa karbon dioksida."
+        },
+        {
+          "id": "latihan",
+          "title": "Latihan",
+          "body": "1. Sebutkan urutan organ pernapasan dari yang paling luar hingga ke dalam! 2. Apa fungsi utama dari alveolus? 3. Mengapa kita disarankan bernapas melalui hidung daripada mulut?"
+        }
+      ],
+      "status": "Draft",
+      "updatedAt": "Hari ini"
+    },
+    {
       "id": "material-e74177e0",
       "title": "test",
       "subject": "IPA",
@@ -160,6 +197,16 @@
     }
   ],
   "assessments": [
+    {
+      "id": "assessment-ff968974",
+      "title": "Ulangan baru — tulis topik",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "questionCount": 10,
+      "duration": "30 menit",
+      "status": "Draft",
+      "updatedAt": "Hari ini"
+    },
     {
       "id": "assessment-45fe6305",
       "title": "Matematika — Pecahan",
@@ -551,6 +598,36 @@
     }
   ],
   "grading": [
+    {
+      "id": "gradin-0e589bc2",
+      "assessmentId": "assessment-1",
+      "studentName": "Budi Santoso",
+      "correct": 8,
+      "wrong": 2,
+      "score": 80,
+      "status": "Selesai",
+      "confidence": "Direview guru"
+    },
+    {
+      "id": "gradin-1e7b9368",
+      "assessmentId": "assessment-1",
+      "studentName": "Budi Santoso",
+      "correct": 8,
+      "wrong": 2,
+      "score": 80,
+      "status": "Selesai",
+      "confidence": "Direview guru"
+    },
+    {
+      "id": "gradin-30ef52cd",
+      "assessmentId": "assessment-1",
+      "studentName": "Budi Santoso",
+      "correct": 10,
+      "wrong": 0,
+      "score": 100,
+      "status": "Selesai",
+      "confidence": "Tinggi"
+    },
     {
       "id": "gradin-99470474",
       "assessmentId": "assessment-1",
