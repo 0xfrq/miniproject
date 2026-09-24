@@ -38,6 +38,14 @@
   ],
   "activities": [
     {
+      "id": "activitie-be6e71b1",
+      "title": "Testing",
+      "description": "Hanya testing saja",
+      "label": "200 - Testing",
+      "imageUrl": "https://www.gstatic.com/youtube/img/promos/6819916e0737ec3a4f00c9333616804ec7268939491202ce76e7597e6456b803_122x56.webp",
+      "imageLabel": "Foto kegiatan baru"
+    },
+    {
       "id": "activity-1",
       "title": "Membaca lebih dekat",
       "description": "Klub mingguan untuk menemukan satu buku, lalu membawanya ke percakapan.",
@@ -67,6 +75,18 @@
     }
   ],
   "posts": [
+    {
+      "id": "post-e8347cef",
+      "createdAt": "2026-09-24T06:32:37.461Z",
+      "updatedAt": "2026-09-24T06:32:45.620Z",
+      "title": "Catatan baru",
+      "excerpt": "Ringkasan catatan sekolah.",
+      "category": "Ruang guru",
+      "date": "20 Mei 2025",
+      "featured": false,
+      "imageUrl": "",
+      "imageLabel": "Foto informasi baru"
+    },
     {
       "id": "post-1",
       "title": "Ketika sekolah memberi waktu untuk mendengar.",
@@ -197,6 +217,26 @@
     }
   ],
   "assessments": [
+    {
+      "id": "assessment-0cd3c7ab",
+      "title": "Ulangan baru — tulis topik",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "questionCount": 10,
+      "duration": "30 menit",
+      "status": "Draft",
+      "updatedAt": "Hari ini"
+    },
+    {
+      "id": "assessment-033168c3",
+      "title": "Ulangan baru — tulis topik",
+      "subject": "IPA",
+      "grade": "Kelas 5 SD",
+      "questionCount": 10,
+      "duration": "30 menit",
+      "status": "Draft",
+      "updatedAt": "Hari ini"
+    },
     {
       "id": "assessment-ff968974",
       "title": "Ulangan baru — tulis topik",

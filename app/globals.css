@@ -258,6 +258,7 @@ h3 { font-size: clamp(1.15rem, 1.7vw, 1.55rem); }
 .admin-content-row__visual .admin-image-placeholder { min-height: 8rem; border-radius: var(--r-sm); }
 .admin-content-row h2 { margin: 0 0 .4rem; font-size: 1.55rem; }
 .admin-content-row p { max-width: 55ch; margin: 0 0 .5rem; color: var(--muted); font-size: 1rem; }
+.admin-upload-preview { display: block; width: min(100%, 24rem); max-height: 14rem; margin-top: 1rem; border-radius: var(--r-sm); object-fit: cover; }
 .admin-content-row__body > small { color: var(--muted); font-family: var(--mono); font-size: .5rem; text-transform: uppercase; }
 .admin-content-row__actions { display: grid; gap: .5rem; justify-items: end; }
 .admin-edit-card { padding: 1.5rem; border: 1px solid var(--green); border-radius: var(--r-lg); background: var(--green-soft); }
