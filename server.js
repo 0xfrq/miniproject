@@ -14,6 +14,13 @@ const app = express();
 store.ensureStore();
 app.use(express.json({ limit: '20mb' }));
 
+// Serve the local public profile with its stylesheet alongside the app routes.
+app.get('/', (_req, res) => res.sendFile(path.join(process.cwd(), 'index.html')));
+app.get('/index.html', (_req, res) => res.sendFile(path.join(process.cwd(), 'index.html')));
+app.get('/style.css', (_req, res) => res.sendFile(path.join(process.cwd(), 'style.css')));
+app.get('/styles.css', (_req, res) => res.sendFile(path.join(process.cwd(), 'styles.css')));
+app.get('/script.js', (_req, res) => res.sendFile(path.join(process.cwd(), 'script.js')));
+
 function sendError(res, status, message) {
   return res.status(status).json({ error: message });
 }
