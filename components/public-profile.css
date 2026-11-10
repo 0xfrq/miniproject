@@ -1,0 +1,561 @@
+/* ===== Variabel & Reset ===== */
+.static-public-profile {
+  --kuning: #ffd700;
+  --hitam: #0d0d0d;
+  --abu: #8e8e93;
+  --abu-teks: #6b7280;
+  --abu-muda: #9ca3af;
+  --bg-hari: #f9fafb;
+  --bg-weekend: #f3f4f6;
+  --border: #e5e7eb;
+  --card: #d9d9d9;
+  --header-h: 108px;
+}
+
+.static-public-profile *,
+.static-public-profile *::before,
+.static-public-profile *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.static-public-profile {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+.static-public-profile {
+  font-family: "Inter", sans-serif;
+  font-size: 22px;
+  line-height: 1.4;
+  color: #000;
+  background: #fff;
+}
+
+.static-public-profile img {
+  display: block;
+  max-width: 100%;
+}
+
+.static-public-profile a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ===== Header ===== */
+.static-public-profile .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-right: 46px;
+  background: #fff;
+  border-bottom: 1px solid #000;
+}
+
+.static-public-profile .brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.static-public-profile .brand-logo {
+  width: 109px;
+  height: 109px;
+  object-fit: cover;
+}
+
+.static-public-profile .brand-name {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.static-public-profile .nav {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-left: auto;
+  margin-right: 70px;
+}
+
+.static-public-profile .nav a {
+  font-size: 28px;
+  font-weight: 400;
+  transition: opacity 0.2s;
+}
+
+.static-public-profile .nav a:hover {
+  opacity: 0.6;
+}
+
+.static-public-profile .btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  padding: 8px;
+  background: var(--kuning);
+  border-radius: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  transition: filter 0.2s;
+}
+
+.static-public-profile .btn-login:hover {
+  filter: brightness(0.93);
+}
+
+/* ===== Hero ===== */
+.static-public-profile .hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1000px;
+  padding: 160px 24px;
+  text-align: center;
+  color: #fff;
+  background:
+    linear-gradient(rgba(20, 30, 120, 0.55), rgba(20, 30, 120, 0.55)),
+    #1f2a6b;
+}
+
+.static-public-profile .hero-content {
+  max-width: 968px;
+}
+
+.static-public-profile .hero-school {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.static-public-profile .hero-title {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.static-public-profile .hero-school,
+.static-public-profile .hero-title {
+  -webkit-text-stroke: 6px #000;
+  paint-order: stroke fill;
+}
+
+/* ===== Profil ===== */
+.static-public-profile .profil {
+  padding: 60px 55px 80px;
+}
+
+.static-public-profile .info-table {
+  max-width: 946px;
+  margin: 0 auto 60px;
+  color: #fff;
+  text-align: center;
+  font-size: 28px;
+}
+
+.static-public-profile .info-head {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 20px;
+  padding: 4px 0;
+  background: var(--abu);
+}
+
+.static-public-profile .info-body {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 13px 20px;
+  padding: 16px 0;
+  background: rgba(10, 10, 12, 0.86);
+}
+
+.static-public-profile .info-body dd {
+  align-self: start;
+}
+
+.static-public-profile .profil-text {
+  max-width: 1329px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.static-public-profile .profil-text p + p {
+  margin-top: 1.4em;
+}
+
+.static-public-profile .visi {
+  max-width: 1150px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.static-public-profile .visi h3,
+.static-public-profile .misi h3 {
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.static-public-profile .misi {
+  max-width: 1294px;
+  margin: 0 auto;
+}
+
+.static-public-profile .misi ol {
+  padding-left: 33px;
+}
+
+/* ===== Berita ===== */
+.static-public-profile .berita {
+  padding: 40px 55px 80px;
+}
+
+.static-public-profile .section-title {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.static-public-profile .social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.static-public-profile .card-row {
+  display: flex;
+  gap: 38px;
+  margin-top: 8px;
+}
+
+.static-public-profile .card {
+  flex: 1;
+  max-width: 269px;
+  height: 515px;
+  background: var(--card);
+  border-radius: 10px;
+}
+
+.static-public-profile .news {
+  max-width: 1304px;
+  margin: 100px auto 0;
+}
+
+.static-public-profile .news-card {
+  height: 394px;
+  margin-top: 8px;
+  background: var(--card);
+  border-radius: 10px;
+}
+
+/* ===== Informasi ===== */
+.static-public-profile .informasi {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 24px 160px;
+}
+
+.static-public-profile .panel {
+  padding: 40px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.static-public-profile .panel-head h3 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.static-public-profile .panel-head p {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: normal;
+  color: var(--abu-teks);
+}
+
+/* Kalender */
+.static-public-profile .calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.static-public-profile .month {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.static-public-profile .days-header,
+.static-public-profile .days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.static-public-profile .days-header span {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--abu-muda);
+}
+
+.static-public-profile .day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100px;
+  padding: 12px;
+  background: var(--bg-hari);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.static-public-profile .day.weekend {
+  background: var(--bg-weekend);
+}
+
+.static-public-profile .day .num {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.static-public-profile .day.weekend .num {
+  color: var(--abu-muda);
+}
+
+.static-public-profile .day .event {
+  font-size: 12px;
+  line-height: normal;
+  color: var(--abu-teks);
+}
+
+/* List kegiatan */
+.static-public-profile .activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  list-style: none;
+  font-size: 18px;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.static-public-profile .activity-list li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-hari);
+  border-radius: 12px;
+}
+
+.static-public-profile .activity-list strong {
+  flex-shrink: 0;
+  width: 120px;
+  font-weight: 700;
+}
+
+/* ===== WhatsApp ===== */
+.static-public-profile .wa-float {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 100;
+  width: 43px;
+  height: 43px;
+}
+
+.static-public-profile .wa-float img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1100px) {
+  .static-public-profile .nav {
+    margin-right: 24px;
+    gap: 12px;
+  }
+
+  .static-public-profile .nav a {
+    font-size: 22px;
+  }
+
+  .static-public-profile .social-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .static-public-profile {
+    font-size: 18px;
+  }
+
+  .static-public-profile .header {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 8px 16px;
+    justify-content: space-between;
+  }
+
+  .static-public-profile .brand-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .static-public-profile .brand-name {
+    font-size: 18px;
+  }
+
+  .static-public-profile .nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .static-public-profile .nav a {
+    font-size: 18px;
+  }
+
+  .static-public-profile .btn-login {
+    width: 90px;
+    font-size: 20px;
+  }
+
+  .static-public-profile {
+    scroll-padding-top: 140px;
+  }
+
+  .static-public-profile .hero {
+    min-height: 600px;
+    padding: 100px 16px;
+  }
+
+  .static-public-profile .hero-school,
+  .static-public-profile .hero-title,
+  .static-public-profile .section-title {
+    font-size: 30px;
+  }
+
+  .static-public-profile .profil,
+  .static-public-profile .berita {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .static-public-profile .info-table {
+    font-size: 18px;
+  }
+
+  .static-public-profile .info-head,
+  .static-public-profile .info-body {
+    grid-template-columns: 1fr 1.6fr;
+    gap: 10px;
+  }
+
+  .static-public-profile .card-row {
+    gap: 16px;
+  }
+
+  .static-public-profile .card {
+    height: 320px;
+  }
+
+  .static-public-profile .news-card {
+    height: 240px;
+  }
+
+  .static-public-profile .panel {
+    padding: 16px;
+  }
+
+  .static-public-profile .day {
+    height: 64px;
+    padding: 4px;
+  }
+
+  .static-public-profile .day .event {
+    display: none;
+  }
+}
+
+/* Keep the downloaded visual system inside the public page. */
+.static-public-profile { min-height: 100vh; font-family: "Inter", ui-sans-serif, sans-serif; }
+.static-public-profile :is(h1, h2, h3, h4) { font-family: inherit; letter-spacing: normal; line-height: 1.4; }
+.static-public-profile :is(section, main) { scroll-margin-top: calc(var(--header-h) + 24px); }
+.static-public-profile .hero-school, .static-public-profile .hero-title { font-size: 48px; }
+.static-public-profile .hero-description { margin-top: 24px; font-size: 22px; }
+.static-public-profile .profil-text h2 { margin-bottom: 24px; font-size: 32px; }
+.static-public-profile .brand-logo--fallback { display: grid; place-items: center; flex-shrink: 0; background: var(--kuning); color: var(--hitam); font-size: 32px; font-weight: 700; }
+.static-public-profile .skip-link { padding: 12px 20px; background: #111; color: white; }
+.static-public-profile .menu-toggle { display: none; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: white; cursor: pointer; }
+.static-public-profile .card-row { flex-wrap: wrap; }
+.static-public-profile .card { display: flex; flex: 1 1 220px; flex-direction: column; min-width: 0; height: auto; min-height: 320px; overflow: hidden; }
+.static-public-profile .activity-image { width: 100%; height: 220px; object-fit: cover; }
+.static-public-profile .image-fallback { display: grid; place-items: center; padding: 24px; color: #414141; background: #e8e8e8; font-size: 16px; text-align: center; }
+.static-public-profile .card-copy { padding: 24px; }
+.static-public-profile .card-copy h3 { font-size: 24px; }
+.static-public-profile .card-copy p { margin-top: 12px; font-size: 18px; }
+.static-public-profile .card-copy a { display: inline-block; margin-top: 16px; text-decoration: underline; text-underline-offset: 4px; }
+.static-public-profile .social-placeholder { justify-content: center; gap: 20px; padding: 24px; }
+.static-public-profile .social-placeholder p { font-size: 18px; }
+.static-public-profile .news-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.static-public-profile .news-card { height: auto; overflow: hidden; }
+.static-public-profile .news-image { width: 100%; height: 220px; object-fit: cover; }
+.static-public-profile .article-meta { color: #555; font-size: 16px; }
+.static-public-profile .article-detail { max-width: 1040px; min-height: 70vh; margin: auto; padding: 60px 24px; }
+.static-public-profile .article-detail h1 { margin: 24px 0; font-size: clamp(30px, 4vw, 48px); }
+.static-public-profile .back-link { display: inline-block; margin-bottom: 40px; text-decoration: underline; }
+.static-public-profile .article-image { width: 100%; max-height: 480px; object-fit: cover; margin-bottom: 24px; }
+.static-public-profile .article-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.static-public-profile .activity-list strong { width: 150px; }
+.static-public-profile .activity-list small { display: block; margin-top: 8px; color: var(--abu-teks); }
+.static-public-profile .contact-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 60px; max-width: 1200px; margin: auto; padding: 40px 24px 100px; }
+.static-public-profile .contact-section h2 { font-size: 32px; }
+.static-public-profile .contact-section :is(p, address) { margin-top: 24px; }
+.static-public-profile address { font-style: normal; }
+.static-public-profile address a { display: block; margin-top: 16px; }
+.static-public-profile form { display: grid; gap: 20px; }
+.static-public-profile form label { display: grid; gap: 8px; }
+.static-public-profile :is(input, textarea) { width: 100%; padding: 12px; border: 1px solid #999; border-radius: 8px; background: white; }
+.static-public-profile form .btn-login { width: auto; justify-self: start; padding: 12px 24px; font-size: 20px; cursor: pointer; }
+.static-public-profile .school-footer { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; padding: 32px 55px 80px; border-top: 1px solid var(--border); font-size: 16px; }
+.static-public-profile .wa-float { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #128c4a; color: white; font-size: 18px; font-weight: 700; box-shadow: 0 4px 12px #0003; }
+
+@media (max-width: 768px) {
+  .static-public-profile .header { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; }
+  .static-public-profile .nav { grid-column: 1 / -1; grid-row: 2; }
+  .static-public-profile .menu-toggle { display: block; margin-left: auto; }
+  .static-public-profile .nav { display: none; }
+  .static-public-profile .nav.is-open { display: flex; flex-wrap: wrap; padding: 12px 0; }
+  .static-public-profile .hero-school, .static-public-profile .hero-title { font-size: 30px; }
+  .static-public-profile .hero-description { font-size: 18px; }
+  .static-public-profile .news-list, .static-public-profile .contact-section { grid-template-columns: minmax(0, 1fr); }
+  .static-public-profile .activity-list li { align-items: flex-start; gap: 12px; }
+  .static-public-profile .activity-list strong { width: 100px; }
+  .static-public-profile .school-footer { padding-inline: 24px; }
+}
+
