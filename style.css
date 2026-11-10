@@ -1,0 +1,504 @@
+/* ===== Variabel & Reset ===== */
+:root {
+  --kuning: #ffd700;
+  --hitam: #0d0d0d;
+  --abu: #8e8e93;
+  --abu-teks: #6b7280;
+  --abu-muda: #9ca3af;
+  --bg-hari: #f9fafb;
+  --bg-weekend: #f3f4f6;
+  --border: #e5e7eb;
+  --card: #d9d9d9;
+  --header-h: 108px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  font-size: 22px;
+  line-height: 1.4;
+  color: #000;
+  background: #fff;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ===== Header ===== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-right: 46px;
+  background: #fff;
+  border-bottom: 1px solid #000;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-logo {
+  width: 109px;
+  height: 109px;
+  object-fit: cover;
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-left: auto;
+  margin-right: 70px;
+}
+
+.nav a {
+  font-size: 28px;
+  font-weight: 400;
+  transition: opacity 0.2s;
+}
+
+.nav a:hover {
+  opacity: 0.6;
+}
+
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  padding: 8px;
+  background: var(--kuning);
+  border-radius: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  transition: filter 0.2s;
+}
+
+.btn-login:hover {
+  filter: brightness(0.93);
+}
+
+/* ===== Hero ===== */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1000px;
+  padding: 160px 24px;
+  text-align: center;
+  color: #fff;
+  background:
+    linear-gradient(rgba(20, 30, 120, 0.55), rgba(20, 30, 120, 0.55)),
+    url("/img/hero.png") center / cover no-repeat,
+    #1f2a6b;
+}
+
+.hero-content {
+  max-width: 968px;
+}
+
+.hero-school {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.hero-school,
+.hero-title {
+  -webkit-text-stroke: 6px #000;
+  paint-order: stroke fill;
+}
+
+/* ===== Profil ===== */
+.profil {
+  padding: 60px 55px 80px;
+}
+
+.info-table {
+  max-width: 946px;
+  margin: 0 auto 60px;
+  color: #fff;
+  text-align: center;
+  font-size: 28px;
+}
+
+.info-head {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 20px;
+  padding: 4px 0;
+  background: var(--abu);
+}
+
+.info-body {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 13px 20px;
+  padding: 16px 0;
+  background: rgba(10, 10, 12, 0.86);
+}
+
+.info-body dd {
+  align-self: start;
+}
+
+.profil-text {
+  max-width: 1329px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.profil-text p + p {
+  margin-top: 1.4em;
+}
+
+.visi {
+  max-width: 1150px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.visi h3,
+.misi h3 {
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.misi {
+  max-width: 1294px;
+  margin: 0 auto;
+}
+
+.misi ol {
+  padding-left: 33px;
+}
+
+/* ===== Berita ===== */
+.berita {
+  padding: 40px 55px 80px;
+}
+
+.section-title {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.card-row {
+  display: flex;
+  gap: 38px;
+  margin-top: 8px;
+}
+
+.card {
+  flex: 1;
+  max-width: 269px;
+  height: 515px;
+  background: var(--card);
+  border-radius: 10px;
+}
+
+.news {
+  max-width: 1304px;
+  margin: 100px auto 0;
+}
+
+.news-card {
+  height: 394px;
+  margin-top: 8px;
+  background: var(--card);
+  border-radius: 10px;
+}
+
+/* ===== Informasi ===== */
+.informasi {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 24px 160px;
+}
+
+.panel {
+  padding: 40px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.panel-head h3 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.panel-head p {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: normal;
+  color: var(--abu-teks);
+}
+
+/* Kalender */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.month {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.days-header,
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.days-header span {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--abu-muda);
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100px;
+  padding: 12px;
+  background: var(--bg-hari);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.day.weekend {
+  background: var(--bg-weekend);
+}
+
+.day .num {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.day.weekend .num {
+  color: var(--abu-muda);
+}
+
+.day .event {
+  font-size: 12px;
+  line-height: normal;
+  color: var(--abu-teks);
+}
+
+/* List kegiatan */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  list-style: none;
+  font-size: 18px;
+  line-height: normal;
+  color: var(--hitam);
+}
+
+.activity-list li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-hari);
+  border-radius: 12px;
+}
+
+.activity-list strong {
+  flex-shrink: 0;
+  width: 120px;
+  font-weight: 700;
+}
+
+/* ===== WhatsApp ===== */
+.wa-float {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 100;
+  width: 43px;
+  height: 43px;
+}
+
+.wa-float img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1100px) {
+  .nav {
+    margin-right: 24px;
+    gap: 12px;
+  }
+
+  .nav a {
+    font-size: 22px;
+  }
+
+  .social-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 18px;
+  }
+
+  .header {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 8px 16px;
+    justify-content: space-between;
+  }
+
+  .brand-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .nav a {
+    font-size: 18px;
+  }
+
+  .btn-login {
+    width: 90px;
+    font-size: 20px;
+  }
+
+  html {
+    scroll-padding-top: 140px;
+  }
+
+  .hero {
+    min-height: 600px;
+    padding: 100px 16px;
+  }
+
+  .hero-school,
+  .hero-title,
+  .section-title {
+    font-size: 30px;
+  }
+
+  .profil,
+  .berita {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .info-table {
+    font-size: 18px;
+  }
+
+  .info-head,
+  .info-body {
+    grid-template-columns: 1fr 1.6fr;
+    gap: 10px;
+  }
+
+  .card-row {
+    gap: 16px;
+  }
+
+  .card {
+    height: 320px;
+  }
+
+  .news-card {
+    height: 240px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .day {
+    height: 64px;
+    padding: 4px;
+  }
+
+  .day .event {
+    display: none;
+  }
+}

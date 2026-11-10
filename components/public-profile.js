@@ -1,54 +1,187 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Icon } from './ui-icon';
+import '../style.css';
 
-const fallbackSite = {
-  meta: { schoolName: 'SDN Bangah No. 383', shortName: 'SDN Bangah', eyebrow: 'Sekolah dasar · Belajar dekat dengan kehidupan', heroTitle: 'Belajar dengan rasa ingin tahu.', heroDescription: 'Di SDN Bangah, pelajaran tidak berhenti di halaman buku. Kami merawat pertanyaan, memberi ruang untuk mencoba, dan berjalan bersama setiap prosesnya.', aboutTitle: 'Sekolah yang hadir sepenuhnya.', aboutDescription: 'Kami percaya pendidikan yang baik membuat anak lebih peka terhadap sekitarnya—dan lebih berani mengambil bagian.', aboutBody: 'SDN Bangah adalah ruang belajar untuk anak-anak yang sedang menyusun cara pandangnya sendiri. Di sini, matematika bisa dimulai dari kebun, lingkungan sekitar menjadi bahan pengamatan, dan karya seni boleh lahir dari kegagalan percobaan pertama.', contactEmail: 'halo@sdnbangah.sch.id', phone: '(031) 555 0125', address: 'Jl. Pendidikan No. 383, Bangah', year: '2024/25', imageLabels: { hero: 'IMAGE · HERO UTAMA', secondary: 'IMAGE · HALAMAN SEKOLAH', activity: 'IMAGE · KEGIATAN SEKOLAH', news: 'IMAGE · BERITA UTAMA' } },
-  values: [{ id: '1', title: 'Datang dengan pertanyaan', description: 'Rasa penasaran bukan gangguan. Ia adalah awal dari pelajaran yang melekat.' }, { id: '2', title: 'Membuat sesuatu bersama', description: 'Ide tumbuh lebih kuat saat dibagikan dan dikerjakan bersama.' }, { id: '3', title: 'Pulang membawa cerita', description: 'Setiap hari menyisakan sesuatu untuk dibagikan kembali di rumah.' }],
-  activities: [{ id: '1', title: 'Membaca lebih dekat', description: 'Klub mingguan untuk menemukan satu buku, lalu membawanya ke percakapan.', label: '01 · Studio baca', imageLabel: 'IMAGE · STUDIO BACA' }, { id: '2', title: 'Belajar dari sekitar', description: 'Siswa mengamati lingkungan, bertemu narasumber, dan menyusun temuannya.', label: '02 · Jelajah sekitar', imageLabel: 'IMAGE · JELAJAH SEKITAR' }, { id: '3', title: 'Menguji kemungkinan', description: 'Ruang eksperimen untuk membuat prototipe dan belajar dari hasilnya.', label: '03 · Laboratorium ide', imageLabel: 'IMAGE · LABORATORIUM IDE' }],
-  posts: [{ id: '1', title: 'Ketika sekolah memberi waktu untuk mendengar.', excerpt: 'Beberapa pelajaran terbaik dimulai saat kita berhenti sebentar, memperhatikan, lalu mengajukan pertanyaan yang lebih baik.', category: 'Catatan kepala sekolah', date: '18 Mei 2025', featured: true, imageLabel: 'IMAGE · BERITA UTAMA' }, { id: '2', title: 'Klub sains mengubah halaman belakang menjadi kebun belajar.', excerpt: 'Kabar dari halaman sekolah dan percakapan siswa.', category: 'Kabar siswa', date: '12 Mei 2025', featured: false }, { id: '3', title: 'Menemani anak memilih jalan setelah sekolah.', excerpt: 'Beberapa cara sederhana membuka obrolan tentang hari belajar.', category: 'Untuk keluarga', date: '04 Mei 2025', featured: false }],
-  agenda: [{ id: '1', title: 'Open house dan tur ruang belajar', description: 'Kenali ruang belajar dan berbincang dengan tim sekolah.', date: '07 Juni 2025', time: '09.00–12.00' }, { id: '2', title: 'Pameran karya akhir semester', description: 'Karya siswa dibuka untuk keluarga dan masyarakat.', date: '21 Juni 2025', time: '15.30–18.00' }],
+// The layout and class names intentionally mirror index.html so both pages
+// share style.css. Interactions are handled by React, not by script.js.
+const school = {
+  name: 'SD Negeri Bangah (SDN Bangah No. 383)',
+  npsn: '383',
+  type: 'Sekolah Dasar (SD)',
+  status: 'Negeri',
+  address: 'Jl. Singojoyo III No. 1, Dusun Bangah Barat, Desa Bangah, Kec. Gedangan, Kabupaten Sidoarjo, Jawa Timur 61254',
 };
 
-function ImagePlaceholder({ label, className = '' }) {
-  return <div className={`image-placeholder ${className}`} role="img" aria-label={`Placeholder ${label}`}><span>{label}</span></div>;
-}
+const mission = [
+  'Menanamkan Nilai Religius & Karakter: Mengintegrasikan nilai-nilai keimanan, ketakwaan, dan Budi Pekerti Luhur dalam setiap aktivitas pembelajaran sehari-hari.',
+  'Mengembangkan Potensi Akademik & Non-Akademik: Menyediakan sarana dan bimbingan belajar yang berkualitas untuk mendorong siswa meraih prestasi tinggi di bidang akademik, seni, maupun olahraga.',
+  'Mewujudkan Lingkungan Belajar Kreatif & Inovatif: Menerapkan metode pembelajaran yang aktif, menyenangkan, dan berwawasan teknologi untuk melatih keterampilan berpikir kritis.',
+  'Membangun Budaya Kolaboratif: Menjalin kerja sama yang erat dan harmonis antara pihak sekolah, orang tua, serta masyarakat sekitar.',
+  'Membentuk Sikap Mandiri & Peduli Lingkungan: Menumbuhkan rasa tanggung jawab, kepemimpinan, serta kepedulian terhadap kebersihan dan kelestarian lingkungan sekolah.',
+];
+
+const septemberEvents = {
+  3: 'Pertemuan Orang Tua',
+  11: 'Ulangan Harian',
+  18: 'Pembagian Raport',
+  25: 'Hari Raya',
+};
+
+const calendarDays = Array.from({ length: 35 }, (_, index) =>
+  index < 30 ? index + 1 : null
+);
 
 export default function PublicProfile() {
-  const [site, setSite] = useState(fallbackSite);
-  const [activityIndex, setActivityIndex] = useState(0);
-  const [category, setCategory] = useState('Semua');
-  const [message, setMessage] = useState('');
+  const [site, setSite] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoUnavailable, setLogoUnavailable] = useState(false);
+  const [whatsappUnavailable, setWhatsappUnavailable] = useState(false);
 
   useEffect(() => {
-    fetch('/api/site').then((response) => response.ok ? response.json() : Promise.reject()).then(setSite).catch(() => {});
+    const controller = new AbortController();
+    fetch('/api/site', { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error('Data situs tidak tersedia');
+        return response.json();
+      })
+      .then(setSite)
+      .catch(() => {});
+    return () => controller.abort();
   }, []);
 
-  const visiblePosts = site.posts.filter((post) => category === 'Semua' || post.category.toLowerCase().includes(category.toLowerCase()));
-  const activeActivity = site.activities[activityIndex % site.activities.length];
+  // Retain backend-driven identity/agenda when provided without changing the
+  // original static HTML's structure, typography, or section order.
+  const displayName = site?.meta?.schoolName || school.name;
+  const displayAddress = site?.meta?.schoolAddress || school.address;
+  const closeMenu = () => setMenuOpen(false);
 
-  function submitContact(event) {
-    event.preventDefault();
-    setMessage('Pesan tercatat untuk demo. Endpoint kontak dapat ditambahkan di backend berikutnya.');
-    event.currentTarget.reset();
-  }
+  return (
+    <div className="static-public-profile" id="home">
+      <a className="skip-link" href="#main-content">Lewati ke konten utama</a>
+      <header className="header">
+        <a href="#home" className="brand" onClick={closeMenu}>
+          {logoUnavailable ? (
+            <span className="brand-logo brand-logo--fallback" aria-hidden="true">SD</span>
+          ) : (
+            <img
+              src="/img/logo-sekolah.png"
+              alt="Logo SDN Bangah"
+              className="brand-logo"
+              onError={() => setLogoUnavailable(true)}
+            />
+          )}
+          <span className="brand-name">SDN<br />Bangah</span>
+        </a>
+        <button
+          className="menu-toggle"
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="public-primary-navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          {menuOpen ? 'Tutup' : 'Menu'}
+        </button>
+        <nav className={`nav${menuOpen ? ' is-open' : ''}`} id="public-primary-navigation" aria-label="Navigasi utama">
+          <a href="#home" onClick={closeMenu}>Home</a>
+          <a href="#profil" onClick={closeMenu}>Profil</a>
+          <a href="#berita" onClick={closeMenu}>Berita</a>
+          <a href="#informasi" onClick={closeMenu}>Informasi</a>
+        </nav>
+        <a href="/guru" className="btn-login">Login</a>
+      </header>
 
-  return <div className="public-site">
-    <a className="skip-link" href="#public-main">Lewati ke konten utama</a>
-    <header className="public-nav"><div className="public-nav__inner"><a className="public-brand" href="#top"><span className="brand-mark"><i></i><i></i><b></b></span><span><strong>SDN<br />Bangah</strong></span></a><button className="public-menu-toggle" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen}>Menu <Icon name="menu" size={16} /></button><nav className={`public-links ${menuOpen ? 'is-open' : ''}`}><a href="#profil">Profil</a><a href="#kegiatan">Kegiatan</a><a href="#catatan">Catatan</a><a href="#agenda">Agenda</a><a className="public-tool-link" href="/guru">Workspace Guru <Icon name="arrow" size={13} /></a></nav></div></header>
-    <main id="public-main">
-      <section className="public-hero page-shell" id="top"><div className="public-hero__copy"><p className="eyebrow">{site.meta.eyebrow}</p><h1>{site.meta.heroTitle}</h1><p className="public-hero__lede">{site.meta.heroDescription}</p><div className="public-actions"><a className="public-button public-button--dark" href="#profil">Kenali sekolah <Icon name="chevronRight" size={15} /></a><a className="public-text-link" href="#kegiatan">Lihat kegiatan <Icon name="arrow" size={13} /></a></div><div className="public-note-line"><i></i> Untuk siswa, keluarga, dan masyarakat.</div></div><div className="public-hero__visual"><ImagePlaceholder label={site.meta.imageLabels.hero} className="placeholder--hero" /><div className="placeholder-float"><ImagePlaceholder label={site.meta.imageLabels.secondary} /></div><div className="hero-sticker"><small>Catatan hari ini</small><strong>Ruang untuk<br />bertumbuh.</strong></div><div className="hero-year">TA<br /><strong>{site.meta.year}</strong></div></div></section>
-      <div className="public-ticker"><span>Pertanyaan baik mengubah cara kita melihat dunia</span><i></i><span>Ruang aman untuk mencoba</span><i></i><span>Pertanyaan baik mengubah cara kita melihat dunia</span></div>
-      <section className="public-section page-shell" id="profil"><div className="public-section__head"><div><p className="section-kicker">Tentang sekolah</p><h2>{site.meta.aboutTitle}</h2></div><p>{site.meta.aboutDescription}</p></div><div className="public-story"><div className="public-prose"><p className="public-lede">{site.meta.aboutBody}</p><p>Kegiatan belajar dirancang dekat dengan kehidupan nyata. Guru mengajak siswa bertanya, menguji, menyusun ulang, lalu menjelaskan kembali dengan bahasa mereka sendiri.</p><a className="public-text-link" href="#contact">Bicara dengan tim sekolah <Icon name="arrow" size={13} /></a></div><aside><div className="aside-rule"></div><p className="section-kicker">Cara kami bekerja</p><ol>{site.values.map((value, index) => <li key={value.id}><span>0{index + 1}</span><div><strong>{value.title}</strong><small>{value.description}</small></div></li>)}</ol></aside></div></section>
-      <section className="public-section public-values page-shell"><div><p className="section-kicker">Yang kami jaga</p><h2>Tiga kebiasaan kecil, dampak yang panjang.</h2></div><div className="value-list">{site.values.map((value, index) => <article key={value.id}><span>{String.fromCharCode(65 + index)}</span><div><h3>{value.title}</h3><p>{value.description}</p></div><b><Icon name="arrow" size={17} /></b></article>)}</div></section>
-      <section className="public-section public-activities page-shell" id="kegiatan"><div className="public-section__head"><div><p className="section-kicker">Kehidupan sekolah</p><h2>Hari-hari yang tidak tinggal diam.</h2></div><div className="activity-controls"><span>0{activityIndex + 1} / 0{site.activities.length}</span><button type="button" onClick={() => setActivityIndex((activityIndex - 1 + site.activities.length) % site.activities.length)} aria-label="Kegiatan sebelumnya"><Icon name="chevronLeft" size={17} /></button><button type="button" onClick={() => setActivityIndex((activityIndex + 1) % site.activities.length)} aria-label="Kegiatan berikutnya"><Icon name="chevronRight" size={17} /></button></div></div><div className="activity-display"><div><ImagePlaceholder label={activeActivity.imageLabel || site.meta.imageLabels.activity} className="placeholder--activity" /><small>{activeActivity.label}</small></div><div><h3>{activeActivity.title}</h3><p>{activeActivity.description}</p><div className="activity-dots">{site.activities.map((activity, index) => <button key={activity.id} className={index === activityIndex ? 'is-active' : ''} onClick={() => setActivityIndex(index)} aria-label={`Kegiatan ${index + 1}`}></button>)}</div></div></div></section>
-      <section className="public-section page-shell" id="catatan"><div className="public-section__head"><div><p className="section-kicker">Berita & catatan</p><h2>Yang sedang kami bicarakan.</h2></div><a className="public-text-link" href="#blog">Buka semua catatan <Icon name="arrow" size={13} /></a></div><div className="post-layout"><article className="featured-post"><ImagePlaceholder label={site.posts.find((post) => post.featured)?.imageLabel || site.meta.imageLabels.news} className="placeholder--post" /><p className="post-meta">{site.posts.find((post) => post.featured)?.category} · {site.posts.find((post) => post.featured)?.date}</p><h3>{site.posts.find((post) => post.featured)?.title}</h3><p>{site.posts.find((post) => post.featured)?.excerpt}</p><a className="public-text-link" href="#blog">Baca catatan <Icon name="arrow" size={13} /></a></article><div className="post-list">{site.posts.filter((post) => !post.featured).map((post) => <article key={post.id}><small>{post.date}</small><div><p className="post-meta">{post.category}</p><h3>{post.title}</h3><a href="#blog">Baca tulisan <Icon name="arrow" size={12} /></a></div></article>)}</div></div></section>
-      <section className="public-section public-blog page-shell" id="blog"><div className="public-section__head"><div><p className="section-kicker">Jurnal SDN Bangah</p><h2>Catatan untuk dibawa pulang.</h2></div><p>Cerita dari kelas, halaman sekolah, dan percakapan yang terus berlanjut.</p></div><div className="filter-bar">{['Semua', 'Kabar siswa', 'Untuk keluarga', 'Ruang guru'].map((item) => <button key={item} className={category === item ? 'is-active' : ''} onClick={() => setCategory(item)}>{item}</button>)}</div><div className="blog-grid">{visiblePosts.map((post, index) => <article key={post.id} className={`blog-card blog-card--${index % 3}`}><div><span>{post.category}</span><b><Icon name="arrow" size={17} /></b></div><h3>{post.title}</h3><p>{post.excerpt}</p><a href="#contact">Baca catatan <Icon name="arrow" size={12} /></a></article>)}</div></section>
-      <section className="public-section public-agenda page-shell" id="agenda"><div><p className="section-kicker">Mendatang</p><h2>Mari bertemu di satu momen.</h2><p>Kalender sekolah terbuka untuk keluarga dan masyarakat.</p></div><div className="agenda-list">{site.agenda.map((event) => <a key={event.id} href="#contact"><time>{event.date.split(' ')[0]}<small>{event.date.split(' ').slice(1).join(' ')}</small></time><div><small>{event.time}</small><h3>{event.title}</h3></div><b><Icon name="arrow" size={17} /></b></a>)}</div></section>
-      <section className="public-section public-contact page-shell" id="contact"><div><p className="section-kicker">Pintu kami terbuka</p><h2>Ada yang ingin kamu tanyakan?</h2><p>Kirim pesan untuk meminta informasi atau menjadwalkan kunjungan.</p><div className="contact-details"><span>Email <a href={`mailto:${site.meta.contactEmail}`}>{site.meta.contactEmail}</a></span><span>Telepon <a href={`tel:${site.meta.phone}`}>{site.meta.phone}</a></span><span>Alamat {site.meta.address}</span></div></div><form onSubmit={submitContact}><label>Nama<input required name="name" placeholder="Nama lengkap" /></label><label>Alamat email<input required type="email" name="email" placeholder="nama@email.com" /></label><label>Pesan<textarea required name="message" rows="4" placeholder="Ceritakan yang ingin kamu ketahui…" /></label><button className="public-button public-button--dark" type="submit">Kirim pesan <Icon name="arrow" size={14} /></button><p role="status">{message}</p></form></section>
-    </main>
-    <footer className="public-footer"><div className="page-shell"><p>Setiap hari dimulai dari satu pertanyaan.</p><div><a className="public-brand" href="#top"><span className="brand-mark"><i></i><i></i><b></b></span><strong>SDN<br />Bangah</strong></a><span>© 2025 SDN Bangah No. 383</span><a href="/admin">Admin editor <Icon name="arrow" size={13} /></a></div></div></footer>
-  </div>;
+      <main id="main-content">
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-content">
+            <h2 className="hero-school">SDN Bangah</h2>
+            <h1 className="hero-title" id="hero-title">Ayo, raih masa depan cerah melalui pendidikan berkarakter</h1>
+          </div>
+        </section>
+
+        <section className="profil" id="profil">
+          <div className="info-table">
+            <div className="info-head"><span></span><span>Keterangan</span></div>
+            <dl className="info-body">
+              <dt>Nama Sekolah</dt><dd>{displayName}</dd>
+              <dt>NPSN</dt><dd>{school.npsn}</dd>
+              <dt>Bentuk Pendidikan</dt><dd>{school.type}</dd>
+              <dt>Status Sekolah</dt><dd>{school.status}</dd>
+              <dt>Alamat</dt><dd>{displayAddress}</dd>
+            </dl>
+          </div>
+          <div className="profil-text">
+            <p>SD Negeri Bangah merupakan salah satu lembaga pendidikan dasar negeri yang terletak di Kecamatan Gedangan, Kabupaten Sidoarjo. Berdiri di tengah lingkungan masyarakat yang kondusif, sekolah ini berkomitmen memberikan pelayanan pendidikan terbaik guna mencetak generasi muda yang cerdas, berkarakter, serta berdaya saing di era digital</p>
+            <p>Sebagai sekolah dasar, SDN Bangah terus beradaptasi dengan perkembangan zaman melalui penerapan kurikulum nasional terkini, integrasi teknologi pembelajaran, serta pembentukan karakter peserta didik berlandaskan nilai-nilai keimanan, kedisiplinan, dan kreativitas</p>
+          </div>
+          <div className="visi">
+            <h3>VISI</h3>
+            <p>"Terwujudnya Generasi Unggul, Berkarakter Beriman, Kreatif, dan Berprestasi Menuju Masa Depan Cemerlang."</p>
+          </div>
+          <div className="misi">
+            <h3>MISI</h3>
+            <ol>{mission.map((item) => <li key={item}>{item}</li>)}</ol>
+          </div>
+        </section>
+
+        <section className="berita" id="berita">
+          <div className="social-row">
+            <div className="social-col">
+              <h2 className="section-title">Laman Kegiatan</h2>
+              <div className="card-row"><div className="card" /><div className="card" /></div>
+            </div>
+            <div className="social-col">
+              <h2 className="section-title">Laman Instagram</h2>
+              <div className="card-row"><div className="card" /><div className="card" /></div>
+            </div>
+          </div>
+          <div className="news">
+            <h2 className="section-title">Laman Berita</h2>
+            <div className="news-card" />
+          </div>
+        </section>
+
+        <section className="informasi" id="informasi">
+          <article className="panel">
+            <header className="panel-head">
+              <h3>Kalender Akademik</h3>
+              <p>Tahun Ajaran 2025/2026</p>
+            </header>
+            <div className="calendar">
+              <h4 className="month">September 2025</h4>
+              <div className="days-header">
+                {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day) => <span key={day}>{day}</span>)}
+              </div>
+              <div className="days-grid">
+                {calendarDays.map((day, index) => (
+                  <div className={`day${index % 7 >= 5 ? ' weekend' : ''}`} key={index}>
+                    {day && <span className="num">{day}</span>}
+                    {day && septemberEvents[day] && <span className="event">{septemberEvents[day]}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+          <article className="panel">
+            <header className="panel-head">
+              <h3>List Kegiatan</h3>
+              <p>Kegiatan selama bulan September 2025 (contoh)</p>
+            </header>
+            <ul className="activity-list">
+              {Object.entries(septemberEvents).map(([day, label]) => (
+                <li key={day}><strong>{day} Sep</strong><span>{label}</span></li>
+              ))}
+            </ul>
+          </article>
+        </section>
+      </main>
+
+      {!whatsappUnavailable && (
+        <a href="https://wa.me/" className="wa-float" target="_blank" rel="noopener noreferrer" aria-label="Hubungi via WhatsApp">
+          <img src="/img/whatsapp.svg" alt="" onError={() => setWhatsappUnavailable(true)} />
+        </a>
+      )}
+    </div>
+  );
 }
+  
