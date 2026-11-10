@@ -14,22 +14,71 @@ function AssessmentsPage({ assessments, questions, onCreate, onNotice }) {
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from './ui-icon';
 
+
 const initialMaterial = { title: 'Sistem Pernapasan Manusia', subject: 'IPA', grade: 'Kelas 5 SD', summary: 'Materi tentang organ dan fungsi sistem pernapasan.', content: 'Sistem pernapasan manusia terdiri dari organ yang bekerja bersama untuk mengambil oksigen dan membuang karbon dioksida.', status: 'Draft', updatedAt: '19 Mei 2025' };
 const initialQuestions = [{ id: 'question-demo-1', text: 'Pecahan manakah yang senilai dengan 1/2?', type: 'Pilihan Ganda', answer: '2/4', difficulty: 'Mudah', options: ['2/4', '2/3', '3/5', '4/5'] }, { id: 'question-demo-2', text: 'Hasil dari 2/3 + 1/6 adalah …', type: 'Pilihan Ganda', answer: '5/6', difficulty: 'Sedang', options: ['1/2', '5/6', '3/9', '1 1/6'] }];
 
-function Layout({ active, setActive, children }) { const links = [['dashboard', 'Dashboard', 'home'], ['materials', 'Materi', 'book'], ['assessments', 'Ulangan', 'clipboard'], ['grading', 'Penilaian', 'chart'], ['history', 'Riwayat', 'clock']]; return <div className="teacher-shell"><aside className="teacher-sidebar"><a className="teacher-brand" href="/"><span className="brand-mark"><i></i><i></i><b></b></span><span><strong>SDN Bangah</strong><small>Workspace Guru</small></span></a><div className="teacher-school"><span>B</span><div><strong>SDN Bangah No. 383</strong><small>Kelas 5A · 2024/25</small></div></div><nav aria-label="Navigasi workspace guru">{links.map(([key, label, icon]) => <button key={key} className={active === key ? 'is-active' : ''} onClick={() => setActive(key)}><i><Icon name={icon} size={17} /></i><span>{label}</span></button>)}</nav><div className="teacher-sidebar__bottom"><div className="teacher-ai-note"><span><Icon name="spark" size={18} /></span><strong>AI belum diaktifkan</strong><p>Semua data di workspace ini masih dikelola manual.</p></div><a href="/"><Icon name="chevronLeft" size={14} /> Kembali ke profil</a></div></aside><main className="teacher-main"><header className="teacher-topbar"><div className="teacher-mobile-brand"><span className="brand-mark"><i></i><i></i><b></b></span><strong>SDN Bangah</strong></div><span className="teacher-breadcrumb">Workspace Guru / <strong>{links.find(([key]) => key === active)?.[1]}</strong></span><div className="teacher-topbar__right"><span className="teacher-mode">Mode demo · tanpa AI</span><span className="teacher-avatar">BR</span></div></header>{children}</main></div>; }
+function Layout({ active, setActive, children, user, userLoading }) {
+  const links = [['dashboard', 'Dashboard', 'home'], ['materials', 'Materi', 'book'], ['assessments', 'Ulangan', 'clipboard'], ['grading', 'Penilaian', 'chart'], ['history', 'Riwayat', 'clock']];
+  const classLabel = user?.className || user?.class?.name || user?.class?.label || user?.kelas?.name || user?.kelas || 'Kelas belum ditentukan';
+  const yearLabel = user?.academicYear || user?.tahunAjaran || '';
+  const initials = user?.name ? user.name.trim().split(/\s+/).slice(0,2).map((part) => part[0]).join('').toUpperCase() : 'G';
+  return <div className="teacher-shell">
+    <aside className="teacher-sidebar">
+      <a className="teacher-brand" href="/" aria-label="Kembali ke beranda SDN Bangah">
+        <span className="teacher-brand__logo"><img src="/assets/logo-sekolah.png" alt="Logo SDN Bangah" onError={(event) => { event.currentTarget.style.display = 'none'; }} /></span>
+        <span><strong>SDN Bangah</strong><small>WORKSPACE GURU</small></span>
+      </a>
+      <div className="teacher-school"><span>B</span><div><strong>SDN Bangah No. 383</strong><small>{userLoading ? 'Memuat kelas...' : classLabel}{yearLabel ? ` · ${yearLabel}` : ''}</small></div></div>
+      <nav aria-label="Navigasi workspace guru">{links.map(([key, label, icon]) => <button type="button" key={key} className={active === key ? 'is-active' : ''} onClick={() => setActive(key)}><i><Icon name={icon} size={17} /></i><span>{label}</span></button>)}</nav>
+      <div className="teacher-sidebar__bottom"><div className="teacher-ai-note"><span><Icon name="spark" size={18} /></span><strong>Workspace pembelajaran</strong><p>Kelola materi, asesmen, dan hasil penilaian dari satu tempat.</p></div><a href="/"><Icon name="chevronLeft" size={14} /> Kembali ke profil</a></div>
+    </aside>
+    <main className="teacher-main"><header className="teacher-topbar"><div className="teacher-mobile-brand"><strong>SDN Bangah</strong></div><span className="teacher-breadcrumb">Workspace Guru / <strong>{links.find(([key]) => key === active)?.[1]}</strong></span><div className="teacher-topbar__right"><span className="teacher-mode">{userLoading ? 'Memuat profil...' : (user?.name || 'Profil belum terhubung')}</span><span className="teacher-avatar" title={user?.name || 'Guru'}>{initials}</span></div></header>{children}</main>
+  </div>;
+}
 
 export default function TeacherWorkspace() {
   const [active, setActive] = useState('dashboard');
   const [dashboard, setDashboard] = useState(null);
   const [materials, setMaterials] = useState([]);
   const [assessments, setAssessments] = useState([]);
-  const [questions, setQuestions] = useState(initialQuestions);
+  const [questions, setQuestions] = useState([]);
   const [grading, setGrading] = useState([]);
   const [notice, setNotice] = useState('');
+  const [user, setUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState(false);
 
   useEffect(() => {
-    Promise.all(['/api/dashboard', '/api/materials', '/api/assessments', '/api/questions', '/api/grading'].map((url) => fetch(url).then((response) => response.json()))).then(([dash, materialData, assessmentData, questionData, gradingData]) => { setDashboard(dash); setMaterials(materialData); setAssessments(assessmentData); setQuestions(questionData.length ? questionData : initialQuestions); setGrading(gradingData); }).catch(() => setNotice('Server belum terhubung. Tampilan demo tetap bisa dibaca.'));
+    // /api/me adalah kontrak untuk backend autentikasi di masa depan.
+    // Tidak menggunakan nama dan kelas dummy jika endpoint belum tersedia.
+    const controller = new AbortController();
+    async function load() {
+      const endpoints = ['/api/dashboard', '/api/materials', '/api/assessments', '/api/questions', '/api/grading', '/api/me'];
+      const results = await Promise.allSettled(endpoints.map(async (url) => {
+        const response = await fetch(url, { signal: controller.signal, credentials: 'same-origin', cache: 'no-store' });
+        if (!response.ok) throw new Error(`${url}: ${response.status}`);
+        return response.json();
+      }));
+      if (controller.signal.aborted) return;
+      const values = results.map((result) => result.status === 'fulfilled' ? result.value : null);
+      const [dash, materialData, assessmentData, questionData, gradingData, profile] = values;
+      setDashboard(dash && typeof dash === 'object' ? dash : null);
+      setDashboardError(!dash);
+      setMaterials(Array.isArray(materialData) ? materialData : []);
+      setAssessments(Array.isArray(assessmentData) ? assessmentData : []);
+      setQuestions(Array.isArray(questionData) ? questionData : []);
+      setGrading(Array.isArray(gradingData) ? gradingData : []);
+      // Dukungan bentuk {user:{...}}, {profile:{...}} atau objek profil langsung.
+      const person = profile?.user || profile?.profile || profile;
+      setUser(person && typeof person === 'object' && (person.name || person.nama) ? { ...person, name: person.name || person.nama } : null);
+      setUserLoading(false);
+      setDashboardLoading(false);
+      if (!dash) setNotice('Statistik belum tersedia. Periksa koneksi API dashboard.');
+    }
+    load().catch(() => { if (!controller.signal.aborted) { setUserLoading(false); setDashboardLoading(false); setDashboardError(true); setNotice('Data belum dapat dimuat.'); } });
+    return () => controller.abort();
   }, []);
 
   async function saveNew(collection, payload) {
@@ -58,12 +107,12 @@ export default function TeacherWorkspace() {
     return assessment;
   }
 
-  return <Layout active={active} setActive={setActive}>{notice && <div className="teacher-notice">{notice}<button onClick={() => setNotice('')}>×</button></div>}{active === 'dashboard' && <TeacherDashboard dashboard={dashboard} materials={materials} assessments={assessments} grading={grading} setActive={setActive} />}{active === 'materials' && <MaterialsPage materials={materials} onCreate={() => saveNew('materials', { ...initialMaterial, title: 'Materi baru — tulis topik', status: 'Draft', updatedAt: '20 Mei 2025' })} onNotice={setNotice} onSaveAi={saveGeneratedMaterial} />}{active === 'assessments' && <LegacyAssessmentsPage assessments={assessments} questions={questions} onCreate={() => saveNew('assessments', { title: 'Ulangan baru — tulis topik', subject: 'IPA', grade: 'Kelas 5 SD', questionCount: 10, duration: '30 menit', status: 'Draft', updatedAt: 'Hari ini' })} onNotice={setNotice} />}{active === 'grading' && <GradingPage grading={grading} onNotice={setNotice} />}{active === 'history' && <TeacherHistory materials={materials} assessments={assessments} grading={grading} />}</Layout>;
+  return <Layout active={active} setActive={setActive} user={user} userLoading={userLoading}>{notice && <div className="teacher-notice">{notice}<button onClick={() => setNotice('')}>×</button></div>}{active === 'dashboard' && <TeacherDashboard dashboard={dashboard} materials={materials} assessments={assessments} grading={grading} user={user} userLoading={userLoading} dashboardLoading={dashboardLoading} dashboardError={dashboardError} setActive={setActive} />}{active === 'materials' && <MaterialsPage materials={materials} onCreate={() => saveNew('materials', { ...initialMaterial, title: 'Materi baru — tulis topik', status: 'Draft', updatedAt: new Date().toISOString() })} onNotice={setNotice} onSaveAi={saveGeneratedMaterial} />}{active === 'assessments' && <LegacyAssessmentsPage assessments={assessments} questions={questions} onCreate={() => saveNew('assessments', { title: 'Ulangan baru — tulis topik', subject: 'IPA', grade: 'Kelas 5 SD', questionCount: 10, duration: '30 menit', status: 'Draft', updatedAt: 'Hari ini' })} onNotice={setNotice} />}{active === 'grading' && <GradingPage grading={grading} onNotice={setNotice} />}{active === 'history' && <TeacherHistory materials={materials} assessments={assessments} grading={grading} />}</Layout>;
 }
 
 function TeacherHeader({ eyebrow, title, description, action }) { return <header className="teacher-page-header"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{description}</p></div>{action}</header>; }
-function TeacherDashboard({ dashboard, materials, assessments, grading, setActive }) { return <div className="teacher-page"><TeacherHeader eyebrow="Selasa, 20 Mei 2025 · Workspace guru" title="Selamat datang, Bu Rina." description="Siap menyiapkan pembelajaran hari ini? Kelola materi, susun ulangan, dan lihat hasil kelas dari satu tempat." action={<span className="teacher-badge">SDN Bangah · Kelas 5A</span>} /><section className="teacher-welcome"><div><span className="section-label">Bukan pengganti guru</span><h2>Siapkan. Periksa. Gunakan.</h2><p>Workspace ini membantu pekerjaan persiapan kelas tetap rapi. Fitur AI akan hadir di tahap berikutnya setelah alur dan sumber data siap.</p></div><div className="teacher-welcome__mark"><Icon name="book" size={62} strokeWidth={1.25} /></div></section><div className="teacher-quick-grid"><button onClick={() => setActive('materials')}><span><Icon name="plus" size={18} /></span><strong>Kelola materi</strong><small>Tambah dan edit materi kelas</small></button><button onClick={() => setActive('assessments')}><span><Icon name="plus" size={18} /></span><strong>Susun ulangan</strong><small>Buat soal secara manual</small></button><button onClick={() => setActive('grading')}><span><Icon name="chart" size={18} /></span><strong>Lihat penilaian</strong><small>Masukkan hasil nilai siswa</small></button></div><div className="teacher-stats"><Stat label="Materi" value={dashboard?.counts?.materials ?? (materials.length || '—')} /><Stat label="Ulangan" value={dashboard?.counts?.assessments ?? (assessments.length || '—')} /><Stat label="Jawaban dinilai" value={dashboard?.counts?.graded ?? (grading.length || '—')} /><Stat label="Rata-rata nilai" value={dashboard?.gradingSummary?.average ?? '—'} /></div><div className="teacher-two-column"><section className="teacher-panel"><PanelHead title="Materi terbaru" link="Lihat semua" onClick={() => setActive('materials')} />{materials.slice(0, 3).map((material) => <ListRow key={material.id} title={material.title} meta={`${material.subject} · ${material.grade}`} status={material.status} />)}</section><section className="teacher-panel"><PanelHead title="Ulangan aktif" link="Lihat semua" onClick={() => setActive('assessments')} />{assessments.slice(0, 3).map((assessment) => <ListRow key={assessment.id} title={assessment.title} meta={`${assessment.questionCount} soal · ${assessment.grade}`} status={assessment.status} />)}</section></div></div>; }
-function Stat({ label, value }) { return <div className="teacher-stat"><span>{label}</span><strong>{value}</strong><small>data tersimpan</small></div>; }
+function TeacherDashboard({ dashboard, materials, assessments, grading, user, userLoading, dashboardLoading, dashboardError, setActive }) { return <div className="teacher-page"><TeacherHeader eyebrow="Workspace guru · SDN Bangah" title={userLoading ? "Memuat profil guru..." : user?.name ? `Selamat datang, ${user.name}.` : "Selamat datang di Workspace Guru."} description="Siap menyiapkan pembelajaran hari ini? Kelola materi, susun ulangan, dan lihat hasil kelas dari satu tempat." action={<span className="teacher-badge">{userLoading ? "Memuat kelas..." : (user?.className || user?.class?.name || user?.kelas?.name || user?.kelas || "Kelas belum ditentukan")}</span>} /><section className="teacher-welcome"><div><span className="section-label">Bukan pengganti guru</span><h2>Siapkan. Periksa. Gunakan.</h2><p>Workspace ini membantu pekerjaan persiapan kelas tetap rapi. Fitur AI akan hadir di tahap berikutnya setelah alur dan sumber data siap.</p></div><div className="teacher-welcome__mark"><Icon name="book" size={62} strokeWidth={1.25} /></div></section><div className="teacher-quick-grid"><button onClick={() => setActive('materials')}><span><Icon name="plus" size={18} /></span><strong>Kelola materi</strong><small>Tambah dan edit materi kelas</small></button><button onClick={() => setActive('assessments')}><span><Icon name="plus" size={18} /></span><strong>Susun ulangan</strong><small>Buat soal secara manual</small></button><button onClick={() => setActive('grading')}><span><Icon name="chart" size={18} /></span><strong>Lihat penilaian</strong><small>Masukkan hasil nilai siswa</small></button></div><div className="teacher-stats" aria-label="Statistik dari backend"><Stat label="Materi" value={dashboardLoading ? "…" : dashboardError ? "—" : (dashboard?.counts?.materials ?? "—")} /><Stat label="Ulangan" value={dashboardLoading ? "…" : dashboardError ? "—" : (dashboard?.counts?.assessments ?? "—")} /><Stat label="Jawaban dinilai" value={dashboardLoading ? "…" : dashboardError ? "—" : (dashboard?.counts?.graded ?? "—")} /><Stat label="Rata-rata nilai" value={dashboardLoading ? "…" : dashboardError || !dashboard?.counts?.graded ? "—" : (dashboard?.gradingSummary?.average ?? "—")} /></div><div className="teacher-two-column"><section className="teacher-panel"><PanelHead title="Materi terbaru" link="Lihat semua" onClick={() => setActive('materials')} />{materials.slice(0, 3).map((material) => <ListRow key={material.id} title={material.title} meta={`${material.subject} · ${material.grade}`} status={material.status} />)}</section><section className="teacher-panel"><PanelHead title="Ulangan aktif" link="Lihat semua" onClick={() => setActive('assessments')} />{assessments.slice(0, 3).map((assessment) => <ListRow key={assessment.id} title={assessment.title} meta={`${assessment.questionCount} soal · ${assessment.grade}`} status={assessment.status} />)}</section></div></div>; }
+function Stat({ label, value }) { return <div className="teacher-stat"><span>{label}</span><strong>{value}</strong><small>dari API dashboard</small></div>; }
 function PanelHead({ title, link, onClick }) { return <div className="teacher-panel__head"><h2>{title}</h2>{link && <button onClick={onClick}>{link} <Icon name="arrow" size={13} /></button>}</div>; }
 function ListRow({ title, meta, status }) { return <article className="teacher-list-row"><div><strong>{title}</strong><small>{meta}</small></div><span className="teacher-badge teacher-badge--soft">{status}</span></article>; }
 
@@ -135,7 +184,7 @@ function GradingPage({ grading, onNotice }) {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [stream, setStream] = useState(null);
   const [scanFile, setScanFile] = useState(null);
-  const [studentName, setStudentName] = useState('Budi Santoso');
+  const [studentName, setStudentName] = useState('');
   const [answers, setAnswers] = useState([]);
   const videoRef = useRef(null);
   const answerKey = ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C', 'A'];

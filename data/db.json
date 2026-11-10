@@ -599,6 +599,16 @@
   ],
   "grading": [
     {
+      "id": "gradin-c839293f",
+      "assessmentId": "assessment-1",
+      "studentName": "Budi Santoso",
+      "correct": 8,
+      "wrong": 2,
+      "score": 80,
+      "status": "Selesai",
+      "confidence": "Direview guru"
+    },
+    {
       "id": "gradin-0e589bc2",
       "assessmentId": "assessment-1",
       "studentName": "Budi Santoso",
