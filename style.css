@@ -501,7 +501,6 @@ a {
   .day .event {
     display: none;
   }
-<<<<<<< HEAD
 }
 
 /* SDN Bangah — shared visual system for static HTML and React */
@@ -565,6 +564,3 @@ a {
  .static-public-profile .hero-content {width:calc(100% - 36px);padding:60px 0}
  .static-public-profile .hero-desc {font-size:clamp(17px,4.5vw,23px)}
 }
-=======
-}
->>>>>>> origin/master
