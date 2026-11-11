@@ -1,4 +1,5 @@
 import './globals.css';
+import '../styles/portal.css';
 
 export const metadata = {
   title: 'SDN Bangah No. 383',
