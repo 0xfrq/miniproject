@@ -2,22 +2,35 @@
   "name": "sdn-bangah-platform",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "db:setup": "node scripts/setup-database.cjs",
     "db:migrate": "node scripts/migrate-database.cjs",
+    "db:bootstrap": "node scripts/bootstrap-cloud.cjs",
+    "db:role": "node scripts/provision-cloud-role.cjs",
+    "storage:setup": "node scripts/setup-storage.cjs",
+    "test:deployment": "node --test tests/deployment.test.mjs",
     "pretest": "npm run build",
-    "test": "node --test tests/migration.test.mjs tests/public-content.test.mjs tests/grade-csv.test.mjs tests/rag.test.mjs",
+    "test": "node --test tests/migration.test.mjs tests/public-content.test.mjs tests/grade-csv.test.mjs tests/rag.test.mjs tests/deployment.test.mjs",
     "books:sync": "node scripts/sync-books.cjs",
     "books:index": "node scripts/index-books.cjs"
   },
   "dependencies": {
-    "next": "^15.2.4",
+    "next": "^15.5.29",
     "pg": "^8.23.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "unpdf": "^2.1.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.23"
+  },
+  "devDependencies": {
+    "supabase": "^3.1.0"
   }
 }

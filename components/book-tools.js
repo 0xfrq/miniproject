@@ -58,7 +58,7 @@ export function BookActions({ book, onPrepare, busy }) {
   return <div className="book-actions">
     <a className="teacher-button teacher-button--quiet" href={`${book.pdfUrl}?download=1`}><Icon name="upload" size={14} className="icon-flip" />Unduh PDF</a>
     <a className="teacher-button teacher-button--quiet" href={book.pdfUrl} target="_blank" rel="noopener noreferrer">Baca ↗</a>
-    {book.index?.status !== 'ready' && <button type="button" className="teacher-button" disabled={busy || book.index?.status === 'indexing'} onClick={() => onPrepare(book)}>{book.index?.status === 'indexing' ? 'Menyiapkan…' : book.index?.status === 'failed' ? 'Coba siapkan lagi' : 'Siapkan untuk AI'}</button>}
+    {book.canIndex !== false && book.index?.status !== 'ready' && <button type="button" className="teacher-button" disabled={busy || book.index?.status === 'indexing'} onClick={() => onPrepare(book)}>{book.index?.status === 'indexing' ? 'Menyiapkan…' : book.index?.status === 'failed' ? 'Coba siapkan lagi' : 'Siapkan untuk AI'}</button>}
   </div>;
 }
 
@@ -151,7 +151,7 @@ export function BookPicker({ books, onChange, max = 5, defaultGrade = '', defaul
     const exists = books.some((item) => item.id === book.id);
     const next = exists ? books.filter((item) => item.id !== book.id) : [...books, book].slice(0, max);
     onChange(next);
-    if (!exists && book.index?.status !== 'ready' && book.index?.status !== 'indexing') prepareBook(book.id).then((fresh) => onChange([...next.filter((item) => item.id !== fresh.id), fresh])).catch((failure) => setError(failure.message));
+    if (!exists && book.canIndex !== false && book.index?.status !== 'ready' && book.index?.status !== 'indexing') prepareBook(book.id).then((fresh) => onChange([...next.filter((item) => item.id !== fresh.id), fresh])).catch((failure) => setError(failure.message));
   }
   const pending = books.filter((book) => book.index?.status !== 'ready');
   return <section className="book-picker">
@@ -159,11 +159,11 @@ export function BookPicker({ books, onChange, max = 5, defaultGrade = '', defaul
     {books.length > 0 && <ul className="book-chips">{books.map((book) => <li key={book.id} className={`book-chip book-chip--${book.index?.status || 'none'}`}>
       <div><strong>{book.title}</strong><small>{book.gradeLabel} · {book.bookTypeLabel}</small></div>
       <BookStatus book={book} />{book.index?.status === 'indexing' && <span className="book-progress"><span style={{ width: `${book.index.progress || 0}%` }} /></span>}
-      {(book.index?.status === 'none' || book.index?.status === 'failed') && <button type="button" className="teacher-button" onClick={() => prepare(book)}>{book.index?.status === 'failed' ? 'Coba lagi' : 'Siapkan'}</button>}
+      {book.canIndex !== false && (book.index?.status === 'none' || book.index?.status === 'failed') && <button type="button" className="teacher-button" onClick={() => prepare(book)}>{book.index?.status === 'failed' ? 'Coba lagi' : 'Siapkan'}</button>}
       <button type="button" className="book-chip__remove" aria-label={`Hapus ${book.title}`} onClick={() => toggle(book)}><Icon name="close" size={14} /></button>
       {book.index?.status === 'failed' && <small className="book-error">{book.index.error}</small>}
     </li>)}</ul>}
-    {pending.length > 0 && <p className="book-picker__note">Buku sedang disiapkan: PDF diunduh, teks dibaca, lalu dibuat indeks pencarian. Biasanya 2–6 menit per buku karena mengikuti kuota gratis. Halaman boleh ditinggal; prosesnya tetap berjalan.</p>}
+    {pending.length > 0 && <p className="book-picker__note">{pending.some((book) => book.canIndex === false) ? 'Sebagian buku belum siap untuk AI. Hubungi administrator untuk menyiapkannya, atau pilih buku berlabel Siap untuk AI.' : 'Buku sedang disiapkan: PDF diunduh, teks dibaca, lalu dibuat indeks pencarian. Biasanya 2–6 menit per buku karena mengikuti kuota gratis. Halaman boleh ditinggal; prosesnya tetap berjalan.'}</p>}
     {error && <p className="ai-error" role="alert">{error}</p>}
     {open && <BookSearch mode="picker" compact selectedIds={books.map((book) => book.id)} onToggle={toggle} defaultGrade={defaultGrade} defaultSubject={defaultSubject} maxSelected={max} />}
   </section>;

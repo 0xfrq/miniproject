@@ -17,6 +17,12 @@ export const GET = api.handleApi(async (request, { params }) => {
   const { id } = await params;
   const book = await books.get(id);
   if (!book) throw new api.ApiError(404, 'Buku tidak ditemukan.');
+  if (process.env.VERCEL === '1') {
+    const source = books.fileUrl(book.sourceUrl);
+    if (!source) throw new api.ApiError(502, 'Alamat PDF buku tidak valid.');
+    // handleApi adds cache headers, so use a response with mutable headers.
+    return new Response(null, { status: 307, headers: { Location: source } });
+  }
   const { file, size } = await books.ensurePdf(book);
   const download = new URL(request.url).searchParams.get('download') === '1';
   const name = fileName(book.title);

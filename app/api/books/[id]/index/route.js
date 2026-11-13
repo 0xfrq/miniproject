@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 // Mengunduh PDF, mengekstrak teks, dan membuat embedding di latar belakang.
 export const POST = api.handleApi(async (request, { params }) => {
   await auth.requireUser(request);
+  if (process.env.VERCEL === '1') throw new api.ApiError(409, 'Buku ini belum disiapkan untuk AI. Hubungi administrator untuk menyiapkannya.');
   const { id } = await params;
   const book = await rag.startIndex(id);
   return Response.json(book, { status: book.index.status === 'ready' ? 200 : 202 });

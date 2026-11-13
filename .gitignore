@@ -3,6 +3,10 @@ node_modules/
 .next-*/
 .env
 .env.local
+.env.*
+!.env.example
+!.env.production.example
+.vercel/
 runtime.pid
 runtime.log
 .local/

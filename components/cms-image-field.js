@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import content from '../lib/public-content';
+import { apiRequest } from './book-tools';
 
 export default function CmsImageField({ label, value = '', onChange, defaultSrc = '' }) {
   const [error, setError] = useState('');
@@ -9,7 +10,7 @@ export default function CmsImageField({ label, value = '', onChange, defaultSrc 
   const [failedUrl, setFailedUrl] = useState('');
   const preview = content.safeUrl(value || defaultSrc, true);
 
-  function readImage(event) {
+  async function readImage(event) {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
@@ -19,10 +20,18 @@ export default function CmsImageField({ label, value = '', onChange, defaultSrc 
       return;
     }
     setBusy(true);
-    const reader = new FileReader();
-    reader.onload = () => { onChange(String(reader.result)); setBusy(false); };
-    reader.onerror = () => { setError('Foto tidak dapat dibaca. Coba pilih ulang.'); setBusy(false); };
-    reader.readAsDataURL(file);
+    try {
+      const { uploadUrl, publicUrl } = await apiRequest('/api/uploads/images', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: file.type, size: file.size }),
+      });
+      const body = new FormData();
+      body.append('cacheControl', '3600');
+      body.append('', file);
+      const response = await fetch(uploadUrl, { method: 'PUT', headers: { 'x-upsert': 'false' }, body, credentials: 'omit' });
+      if (!response.ok) throw new Error('Foto gagal diunggah. Coba pilih ulang.');
+      onChange(publicUrl);
+    } catch (failure) { setError(failure.message); }
+    finally { setBusy(false); }
   }
 
   return <div className="admin-field--full cms-image-field">

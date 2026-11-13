@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Icon } from './ui-icon';
 import { apiRequest } from './book-tools';
+import limits from '../lib/request-limits';
 import './teacher-ai.css';
 
 const MAX_SIDE = 1600;
@@ -50,7 +51,8 @@ export default function OcrScanner({ assessmentId, disabled, onResult }) {
     if (!images.length) return setError('Tambahkan foto lembar jawaban terlebih dahulu.');
     setBusy(true); setError(''); setStatus('');
     try {
-      const result = await apiRequest('/api/ai/ocr-grading', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assessmentId, images: images.map((image) => image.url) }) });
+      const body = limits.ocrRequestBody(assessmentId, images.map((image) => image.url));
+      const result = await apiRequest('/api/ai/ocr-grading', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
       onResult(result);
       const low = result.answers.filter((answer) => answer.confidence === 'rendah').length;
       setStatus(`Terbaca dalam ${Math.round((result.durationMs || 0) / 1000)} detik dan sudah diisikan ke form (nama, no. absen, jawaban).${low ? ` ${low} soal ditandai perlu dicek karena tulisan kurang jelas.` : ''} Periksa sebelum menyimpan.`);

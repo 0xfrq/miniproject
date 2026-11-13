@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from './ui-icon';
 import { apiRequest } from './book-tools';
 import { toDataUrl } from './ocr-scanner';
+import limits from '../lib/request-limits';
 import rules from '../lib/grading';
 import pages from '../lib/ocr-pages';
 import './teacher-ai.css';
@@ -58,7 +59,7 @@ export default function OcrBatch({ assessments, grading, onLoadAssessment, onSav
     update(row.key, { status: 'membaca', error: '' });
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const result = await apiRequest('/api/ai/ocr-grading', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assessmentId: exam.id, images: [row.url] }) });
+        const result = await apiRequest('/api/ai/ocr-grading', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: limits.ocrRequestBody(exam.id, [row.url]) });
         update(row.key, { status: 'selesai', result });
         return;
       } catch (failure) {

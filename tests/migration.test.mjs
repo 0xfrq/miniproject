@@ -36,7 +36,7 @@ async function stop(server) {
   await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
 }
 
-async function startApp(directory, connectionString, schema, providerUrl, key = 'migration-test-key') {
+async function startApp(directory, connectionString, schema, providerUrl, key = 'migration-test-key', extraEnv = {}) {
   const reservation = createServer();
   const port = await listen(reservation);
   await stop(reservation);
@@ -45,7 +45,7 @@ async function startApp(directory, connectionString, schema, providerUrl, key = 
     cwd: directory, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, NODE_ENV: 'production', NEXT_TELEMETRY_DISABLED: '1', DATABASE_URL: connectionString,
       DATABASE_SCHEMA: schema, AI_BASE_URL: providerUrl, AI_API_KEY: key, AI_MODEL: 'migration-test-model',
-      AI_FALLBACK_MODELS: '', AUTH_COOKIE_SECURE: 'false', APP_ORIGIN: baseUrl },
+      AI_FALLBACK_MODELS: '', AUTH_COOKIE_SECURE: 'false', APP_ORIGIN: baseUrl, ...extraEnv },
   });
   let logs = '';
   let spawnError;
@@ -714,6 +714,29 @@ test('PostgreSQL migration, accounts, sessions, authorization, and existing work
       const body = { email: 'limited@example.test', password: teacherPassword, role: 'guru' };
       for (let index = 0; index < 10; index += 1) assert.equal((await request('/api/auth/login', { method: 'POST', body })).status, 401);
       assert.equal((await request('/api/auth/login', { method: 'POST', body })).status, 429);
+    });
+
+    await t.test('Vercel disables web indexing, redirects PDFs, and restricts upload signing to admins', async () => {
+      await pool.query(`INSERT INTO books(id, title, grade, curriculum, book_type, source_url)
+        VALUES('vercel-test', 'Deployment book', 4, 'merdeka', 'siswa', 'https://static-sc.cloudapp.web.id/deployment-test.pdf')`);
+      await app.close();
+      app = await startApp(fixture, database.url, schema, providerUrl, 'migration-test-key', {
+        VERCEL: '1', DATABASE_POOL_MODE: 'session', SUPABASE_URL: '', SUPABASE_SERVICE_ROLE_KEY: '',
+      });
+      assert.equal((await request('/api/books/vercel-test')).status, 401);
+      const book = await request('/api/books/vercel-test', { cookie: adminCookie });
+      assert.equal(book.status, 200);
+      assert.equal(book.data.canIndex, false);
+      assert.equal((await request('/api/books/vercel-test/index', { method: 'POST', cookie: adminCookie, body: {} })).status, 409);
+      assert.equal((await pool.query("SELECT index_status FROM books WHERE id = 'vercel-test'")).rows[0].index_status, 'none');
+      const pdf = await request('/api/books/vercel-test/pdf', { cookie: adminCookie });
+      assert.equal(pdf.status, 307);
+      assert.equal(pdf.response.headers.get('location'), 'https://static-sc.cloudapp.web.id/deployment-test.pdf');
+      const teacher = await login(teacherB.email, teacherPassword, 'guru');
+      const body = { type: 'image/jpeg', size: 100 };
+      assert.equal((await request('/api/uploads/images', { method: 'POST', body })).status, 401);
+      assert.equal((await request('/api/uploads/images', { method: 'POST', cookie: teacher.cookie, body })).status, 403);
+      assert.equal((await request('/api/uploads/images', { method: 'POST', cookie: adminCookie, body })).status, 503);
     });
   } finally {
     await app?.close(); await stop(provider);

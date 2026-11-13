@@ -1,5 +1,7 @@
 # Smart School Learning Platform
 
+Deployment to Vercel + Supabase: [DEPLOYMENT.md](DEPLOYMENT.md). Start with the Supabase project and [.env.production.example](.env.production.example); cloud initialization uses `npm run db:bootstrap`.
+
 Platform profil sekolah dan workspace guru SDN Bangah No. 383 menggunakan Next.js App Router dan React. Halaman, aset publik, dan API dijalankan oleh satu server Next.js.
 
 ## Menjalankan
