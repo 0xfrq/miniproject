@@ -67,3 +67,15 @@ npm test
 Pengujian membuat build produksi, lalu menjalankan PostgreSQL sementara dengan password acak pada port lain. Lokasi default binari Windows: `C:/Program Files/PostgreSQL/18/bin`. Gunakan `PG_BIN` jika PostgreSQL ada di lokasi berbeda. Jika Windows membatasi peluncuran proses PostgreSQL, jalankan pengujian dari terminal normal di luar sandbox.
 
 Sebagai alternatif, `TEST_DATABASE_URL` dapat menunjuk ke koneksi PostgreSQL lokal yang mengizinkan pembuatan schema. Pengujian hanya membuat dan menghapus schema acak dengan awalan `sdn_test_`; tidak mengubah schema aplikasi. Provider AI tiruan lokal digunakan agar pengujian tidak mengirim konten atau biaya ke provider asli.
+
+## Asisten AI, buku SIBI, dan OCR
+
+Migrasi `002_books_rag_assistant.sql` menambahkan katalog buku, potongan teks RAG (`book_chunks`), dan riwayat percakapan asisten. Jalankan `npm run db:migrate` setelah menarik perubahan ini.
+
+- **Katalog buku SIBI**: `npm run books:sync` mengambil semua buku teks PDF SD kelas 1–6 (Kurikulum Merdeka dan K13) dari API resmi `buku.kemendikdasmen.go.id`. Katalog juga otomatis diambil saat pertama kali menu **Buku SIBI** dibuka.
+- **Indexing per buku**: tombol **Siapkan untuk AI** mengunduh PDF ke `.local/books/`, mengekstrak teks di worker thread, lalu membuat embedding `gemini-embedding-001` (768 dimensi). Kuota gratis Gemini dibatasi sekitar 30.000 token per menit, jadi satu buku memerlukan sekitar 2–6 menit. Untuk menyiapkan banyak buku sekaligus dari terminal: `npm run books:index -- --grade 4 --curriculum merdeka` atau `npm run books:index -- <id buku>`.
+- **Asisten AI**: menjawab berdasarkan potongan buku yang dipilih (pencarian hybrid embedding + full-text bahasa Indonesia) dan mencantumkan halaman PDF sumber.
+- **Generator**: materi (menu Materi) dan soal ujian beserta kunci jawaban (menu Ulangan → *Buat dengan AI*) dapat memakai buku referensi.
+- **OCR lembar jawaban**: menu Penilaian → *Tambah penilaian* (satu siswa) atau *Scan batch (OCR)* (seluruh kelas). Gemini Vision membaca nama, no. absen, dan jawaban. Pilihan ganda dinilai otomatis, isian/essay mendapat usulan nilai AI, dan guru meninjau sebelum menyimpan. Mode batch membaca 3 foto sekaligus dan otomatis menggabungkan foto tanpa nama/no. absen sebagai halaman lanjutan siswa sebelumnya. Bila model utama sibuk (503/429) atau lambat (> `AI_OCR_HEDGE_MS`, default 10 detik), permintaan dialihkan atau dikirim paralel ke model cadangan `AI_VISION_FALLBACK_MODELS` (default `gemini-3.5-flash-lite` untuk endpoint Gemini). Foto tidak disimpan di server.
+
+Variabel opsional di `.env`: `AI_EMBEDDING_MODEL`, `AI_EMBEDDING_DIMENSIONS` (default 768; ubah sebelum ada buku terindeks), `AI_EMBEDDING_TPM` (default 25000), `AI_VISION_MODEL` (default `AI_MODEL`), `AI_VISION_FALLBACK_MODELS` (kosongkan untuk mematikan cadangan), `AI_OCR_HEDGE_MS`, `SIBI_API_BASE`, dan `BOOKS_CACHE_DIR`.

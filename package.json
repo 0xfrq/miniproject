@@ -9,12 +9,15 @@
     "db:setup": "node scripts/setup-database.cjs",
     "db:migrate": "node scripts/migrate-database.cjs",
     "pretest": "npm run build",
-    "test": "node --test tests/migration.test.mjs tests/public-content.test.mjs tests/grade-csv.test.mjs"
+    "test": "node --test tests/migration.test.mjs tests/public-content.test.mjs tests/grade-csv.test.mjs tests/rag.test.mjs",
+    "books:sync": "node scripts/sync-books.cjs",
+    "books:index": "node scripts/index-books.cjs"
   },
   "dependencies": {
     "next": "^15.2.4",
     "pg": "^8.23.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "unpdf": "^2.1.0"
   }
 }

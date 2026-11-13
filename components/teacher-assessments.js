@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from './ui-icon';
 import rules from '../lib/assessments';
 import './teacher-assessments.css';
+import AssessmentGenerator from './assessment-generator';
 
 const blank = { title: '', subject: '', grade: '', duration: '30', status: 'Draft' };
 const letter = (index) => String.fromCharCode(65 + index);
@@ -22,11 +23,12 @@ export default function TeacherAssessments({ assessments, questions, loading, lo
   const [deleting, setDeleting] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [generated, setGenerated] = useState(null);
   const confirmHeading = useRef(null);
   useEffect(() => { if (deleting) confirmHeading.current?.focus(); }, [deleting]);
   const selected = assessments.find((item) => item.id === selectedId);
   const selectedQuestions = rules.orderedQuestions(questions, selectedId);
-  function open(next, id = null) { setMode(next); setSelectedId(id); setDeleting(null); setError(''); }
+  function open(next, id = null) { setMode(next); setSelectedId(id); setDeleting(null); setError(''); if (next !== 'create') setGenerated(null); }
   async function save(payload) { const item = await onSave(mode === 'edit' ? selectedId : null, payload); setSelectedId(item.id); setMode('questions'); }
   async function remove() {
     setBusy(true); setError('');
@@ -35,9 +37,10 @@ export default function TeacherAssessments({ assessments, questions, loading, lo
     finally { setBusy(false); }
   }
   return <div className="teacher-page exams-page">
-    <header className="teacher-page-header"><div><p className="eyebrow">Workspace Guru · asesmen</p><h1>Ulangan harian.</h1><p>Susun soal, periksa kunci jawaban, lalu simpan saat siap digunakan.</p></div>{mode === 'list' && <button type="button" className="teacher-button teacher-button--dark" disabled={loading || !!loadError} onClick={() => open('create')}><Icon name="plus" size={15} />Tambah ulangan</button>}</header>
+    <header className="teacher-page-header"><div><p className="eyebrow">Workspace Guru · asesmen</p><h1>Ulangan harian.</h1><p>Susun soal, periksa kunci jawaban, lalu simpan saat siap digunakan.</p></div>{mode === 'list' && <div className="exam-actions"><button type="button" className="teacher-button" disabled={loading || !!loadError} onClick={() => open('generate')}><Icon name="spark" size={15} />Buat dengan AI</button><button type="button" className="teacher-button teacher-button--dark" disabled={loading || !!loadError} onClick={() => open('create')}><Icon name="plus" size={15} />Tambah ulangan</button></div>}</header>
     {loading ? <p role="status">Memuat ulangan dan soal…</p> : loadError ? <section className="teacher-panel"><p role="alert">{loadError}</p><button className="teacher-button" type="button" onClick={onRetry}>Coba lagi</button></section> : <>
-      {mode === 'create' || mode === 'edit' ? <AssessmentForm key={`${mode}-${selectedId || 'new'}`} item={mode === 'edit' ? selected : blank} questions={mode === 'edit' ? selectedQuestions : []} onSave={save} onCancel={() => open(mode === 'edit' ? 'questions' : 'list', selectedId)} />
+      {mode === 'generate' ? <AssessmentGenerator onCancel={() => open('list')} onDone={(draft) => { setGenerated(draft); setMode('create'); }} />
+        : mode === 'create' || mode === 'edit' ? <>{mode === 'create' && generated && <p className="exam-generator__banner"><Icon name="spark" size={15} />Draf dari AI: periksa setiap soal, kunci, dan pembahasan sebelum mengubah status menjadi Siap digunakan.</p>}<AssessmentForm key={`${mode}-${selectedId || 'new'}-${generated ? 'ai' : 'manual'}`} item={mode === 'edit' ? selected : generated?.item || blank} questions={mode === 'edit' ? selectedQuestions : generated?.questions || []} onSave={save} onCancel={() => open(mode === 'edit' ? 'questions' : 'list', selectedId)} /></>
         : (mode === 'questions' || mode === 'answers') && selected ? <>
           <section className="teacher-panel exam-detail">
             <div className="exam-actions"><button type="button" className="teacher-button" disabled={busy} onClick={() => open('list')}>← Daftar ulangan</button><Status value={selected.status} /></div>
@@ -52,7 +55,6 @@ export default function TeacherAssessments({ assessments, questions, loading, lo
           <div className="teacher-list exam-list">{assessments.length ? assessments.map((item) => <article className="teacher-content-card" key={item.id}>
             <div className="teacher-content-card__icon"><Icon name="clipboard" size={22} /></div><div className="exam-card-copy"><span className="section-label">{item.subject} · {item.grade}</span><h2>{item.title}</h2><p>{rules.orderedQuestions(questions, item.id).length} soal · {item.duration}</p></div><div className="teacher-content-card__actions"><Status value={item.status} /><div className="exam-actions"><button className="teacher-button" type="button" disabled={busy} onClick={() => open('questions', item.id)}>Buka</button><button className="teacher-button" type="button" disabled={busy} onClick={() => open('edit', item.id)}>Edit</button><button className="teacher-button exam-delete" type="button" disabled={busy} onClick={() => { setError(''); setDeleting(item); }}>Hapus</button></div></div>
           </article>) : <section className="teacher-panel exam-empty"><Icon name="clipboard" size={30} /><h2>Belum ada ulangan.</h2><p>Klik Tambah ulangan untuk menyusun ulangan pertama Anda.</p></section>}</div>
-          <p className="exam-generator-link"><a href="/ai-learning-generator.html#questions">Buka generator soal yang sudah tersedia ↗</a></p>
         </>}
       {deleting && <section className="teacher-panel exam-confirm" aria-labelledby="exam-delete-title"><h2 id="exam-delete-title" ref={confirmHeading} tabIndex={-1}>Hapus ulangan?</h2><p>Ulangan “{deleting.title}” dan seluruh soalnya akan dihapus permanen. Ulangan yang memiliki hasil penilaian tetap disimpan.</p>{error && <p role="alert">{error}</p>}<div className="exam-actions"><button type="button" className="teacher-button" disabled={busy} onClick={() => { setDeleting(null); setError(''); }}>Batal</button><button type="button" className="teacher-button exam-delete" disabled={busy} onClick={remove}>{busy ? 'Menghapus…' : 'Ya, hapus ulangan'}</button></div></section>}
     </>}

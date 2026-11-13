@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { randomUUID, createHash } from 'node:crypto';
 import { once } from 'node:events';
-import { cp, mkdtemp, readFile, rm, symlink } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, readdir, rm, symlink } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -114,7 +114,8 @@ test('PostgreSQL migration, accounts, sessions, authorization, and existing work
       }
       assert.equal((await importLegacy(pool, adminId, snapshot)).skipped, true);
       await migrate(pool);
-      assert.equal(Number((await pool.query('SELECT count(*) FROM schema_migrations')).rows[0].count), 1);
+      const migrationFiles = (await readdir(path.join(project, 'db', 'migrations'))).filter((name) => name.endsWith('.sql')).length;
+      assert.equal(Number((await pool.query('SELECT count(*) FROM schema_migrations')).rows[0].count), migrationFiles);
     });
 
     for (const name of [buildDirectory, 'public', 'templates', 'package.json', 'next.config.js']) {
