@@ -1,0 +1,49 @@
+.manual-grading-page .manual-grade-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.manual-grading-page h2, .manual-grading-page h3, .manual-grading-page p, .manual-grading-page dd, .manual-grading-page .section-label { overflow-wrap: anywhere; }
+.manual-grading-page button:disabled { opacity: .55; cursor: not-allowed; }
+.manual-grading-page .manual-grade-delete, .manual-grading-page [role=alert] { color: #a32924; }
+.manual-grading-page .manual-grade-delete, .manual-grading-page .manual-grade-confirm { border-color: #ebccc9; }
+.manual-grading-page .manual-grade-card-copy { min-width: 0; }
+.manual-grading-page .manual-grade-score { color: var(--sdn-navy); font-size: 25px; font-variant-numeric: tabular-nums; }
+.manual-grading-page .manual-grade-note, .manual-grading-page .manual-grade-guidance p { color: var(--sdn-muted); font-size: 13px; line-height: 1.8; }
+.manual-grading-page .manual-grade-guidance, .manual-grading-page .manual-grade-detail, .manual-grading-page .manual-grade-confirm { margin-bottom: 24px; }
+.manual-grading-page .manual-grade-detail h2 { font-size: clamp(24px, 3vw, 34px); margin: 24px 0 10px; }
+.manual-grading-page .manual-grade-detail > section { margin: 24px 0; }
+.manual-grading-page .manual-grade-prose, .manual-grading-page dd { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.manual-grading-page .manual-grade-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }
+.manual-grading-page .manual-grade-summary > div { padding: 18px; background: #f2f6fc; border-radius: 12px; min-width: 0; }
+.manual-grading-page .manual-grade-summary span, .manual-grading-page .manual-grade-summary small { display: block; color: var(--sdn-muted); font-size: 12px; line-height: 1.7; }
+.manual-grading-page .manual-grade-summary strong { display: block; color: var(--sdn-navy); font-size: 29px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.manual-grading-page .manual-grade-answers ol { padding-left: 22px; }
+.manual-grading-page .manual-grade-answers li { padding: 20px 6px; border-bottom: 1px solid var(--sdn-line); }
+.manual-grading-page .manual-grade-answers dl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; font-size: 13px; }
+.manual-grading-page .manual-grade-answers dt { color: var(--sdn-muted); }
+.manual-grading-page .manual-grade-answers dd { margin: 0; }
+.manual-grading-page .manual-grade-empty { text-align: center; padding: 42px 24px; }
+.manual-grading-page .manual-grade-editor fieldset { border: 0; padding: 0; margin: 24px 0; min-width: 0; }
+.manual-grading-page .manual-grade-editor input, .manual-grading-page .manual-grade-editor textarea, .manual-grading-page .manual-grade-editor select { min-width: 0; font: inherit; }
+.manual-grading-page .manual-grade-editor label { min-width: 0; }
+.manual-grading-page .manual-grade-editor textarea { resize: vertical; }
+.manual-grading-page .manual-grade-question { margin-bottom: 20px; padding: 20px; border: 1px solid var(--sdn-line); background: #f8fafc; border-radius: 12px; }
+.manual-grading-page .manual-grade-question h3 { margin-top: 0; font-size: 18px; }
+.manual-grading-page .manual-grade-key { font-size: 13px; color: #216347; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.manual-grading-page .manual-grade-auto { color: #216347; font-size: 13px; }
+.manual-grading-page .manual-grade-refresh { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.manual-grading-page .manual-grade-refresh small { flex: 1; min-width: 180px; color: var(--sdn-muted); font-size: 12px; line-height: 1.7; }
+.manual-grading-page .manual-grade-notes { display: grid; gap: 9px; font-size: 12px; font-weight: 700; margin-top: 20px; }
+.manual-grading-page .manual-grade-notes textarea { width: 100%; padding: 12px; border: 1px solid var(--sdn-line); border-radius: 9px; }
+.manual-grading-page .manual-grade-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.manual-grading-page .grade-csv-export { margin-bottom: 24px; }
+.manual-grading-page .grade-csv-export p { font-size: 13px; color: var(--sdn-muted); line-height: 1.7; }
+.manual-grading-page .grade-csv-export [role=alert] { color: #a32924; }
+.manual-grading-page .grade-csv-export form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; }
+.manual-grading-page .grade-csv-export label { display: grid; flex: 1; min-width: 0; gap: 8px; font-size: 12px; font-weight: 700; }
+.manual-grading-page .grade-csv-export select { width: 100%; min-width: 0; padding: 11px; border: 1px solid var(--sdn-line); border-radius: 9px; background: white; font: inherit; }
+@media (max-width: 700px) {
+  .manual-grading-page .manual-grade-summary { grid-template-columns: minmax(0, 1fr); }
+  .manual-grading-page .manual-grade-editor, .manual-grading-page .manual-grade-detail, .manual-grading-page .manual-grade-answers { padding: 18px; }
+  .manual-grading-page .manual-grade-question { padding: 14px; }
+  .manual-grading-page .manual-grade-answers dl { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .manual-grading-page .teacher-content-card__icon { display: none; }
+  .manual-grading-page .teacher-content-card__actions { align-items: flex-start; }
+}

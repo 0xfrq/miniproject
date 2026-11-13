@@ -1,0 +1,52 @@
+.static-public-profile :is(h1, h2, h3, h4) { font-family: inherit; }
+.static-public-profile section { scroll-margin-top: 96px; }
+.static-public-profile .brand-name { max-width: 190px; overflow-wrap: anywhere; }
+.static-public-profile .brand-name small { display: block; }
+.static-public-profile .cms-paragraphs { white-space: pre-wrap; }
+.static-public-profile .gallery-grid { align-items: start; }
+.static-public-profile .cms-gallery-item { min-width: 0; margin: 0; }
+.static-public-profile .cms-gallery-item figcaption { padding-top: 10px; overflow-wrap: anywhere; }
+.static-public-profile .cms-gallery-item h4 { margin: 0 0 7px; font-size: 14px; line-height: 1.45; letter-spacing: normal; }
+.static-public-profile .cms-gallery-item p { margin: 0 0 7px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.static-public-profile .cms-gallery-item small { color: var(--muted); font-size: 11px; }
+.static-public-profile .cms-news-heading { margin-top: 48px; }
+.static-public-profile .cms-news-heading h3 { margin: 0; font-size: 26px; }
+.static-public-profile .cms-news-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 24px; }
+.static-public-profile .cms-news-list .news-card { display: block; min-width: 0; margin: 0; padding: 24px; overflow-wrap: anywhere; }
+.static-public-profile .cms-news-list .news-card h3 { margin: 0 0 10px; line-height: 1.4; }
+.static-public-profile .cms-news-list .section-label { margin-bottom: 12px; font-size: 11px; color: #87651b; }
+.static-public-profile .cms-news-list .cms-news-date { margin-bottom: 12px; font-size: 12px; }
+.static-public-profile .cms-news-image { height: 180px; margin-bottom: 20px; overflow: hidden; border-radius: 12px; }
+.static-public-profile .cms-news-image img { width: 100%; height: 100%; object-fit: cover; }
+.static-public-profile .cms-read-more, .static-public-profile .cms-back { display: inline-block; margin-top: 18px; color: var(--blue); font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.static-public-profile .cms-empty { padding: 20px 0; color: var(--muted); font-size: 14px; }
+.static-public-profile .cms-load-notice { padding-block: 16px; color: var(--muted); }
+.static-public-profile .calendar-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin-top: 20px; }
+.static-public-profile .calendar-controls label { display: grid; gap: 5px; font-size: 11px; color: var(--muted); }
+.static-public-profile .calendar-controls input { width: 150px; min-width: 0; max-width: 100%; font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: white; }
+.static-public-profile .calendar-controls button { min-height: 34px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #f4f7fb; color: var(--navy); font-size: 12px; cursor: pointer; }
+.static-public-profile .day.has-events { position: relative; border: 1px solid #b8cdec; background: #e7f0fc; }
+.static-public-profile .activity-list { max-height: 600px; overflow-y: auto; }
+.static-public-profile .activity-list strong { width: 112px; }
+.static-public-profile .activity-list li > div { min-width: 0; overflow-wrap: anywhere; }
+.static-public-profile .activity-list span { font-weight: 700; color: var(--ink); }
+.static-public-profile .activity-list small { display: block; margin-top: 4px; }
+.static-public-profile .activity-list p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; }
+.static-public-profile .cms-contact-links { display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 13px; }
+.static-public-profile .cms-contact-links a { overflow-wrap: anywhere; }
+.static-public-profile .footer p { margin-top: 8px; max-width: 600px; }
+.static-public-profile .cms-article { max-width: 900px; }
+.static-public-profile .cms-article .cms-back { margin: 0 0 36px; }
+.static-public-profile .cms-article h1 { margin: 0 0 20px; font-size: clamp(30px, 4vw, 48px); line-height: 1.25; letter-spacing: -.8px; overflow-wrap: anywhere; }
+.static-public-profile .cms-article-date { margin: 0 0 28px; font-size: 14px; color: var(--muted); }
+.static-public-profile .cms-article-image { margin-bottom: 28px; overflow: hidden; border-radius: 18px; }
+.static-public-profile .cms-article-image img { width: 100%; max-height: 500px; object-fit: contain; }
+.static-public-profile .cms-article-body { white-space: pre-wrap; font-size: 17px; line-height: 1.9; overflow-wrap: anywhere; }
+@media (max-width: 680px) {
+  .static-public-profile section { scroll-margin-top: 84px; }
+  .static-public-profile .brand-name { max-width: 125px; }
+  .static-public-profile .cms-news-list { grid-template-columns: minmax(0, 1fr); }
+  .static-public-profile .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .static-public-profile .activity-list strong { width: 90px; }
+  .static-public-profile .day.has-events::after { content: ''; display: block; width: 4px; height: 4px; margin: 4px auto 0; border-radius: 50%; background: var(--blue); }
+}

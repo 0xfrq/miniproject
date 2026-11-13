@@ -11,15 +11,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
   const [notice, setNotice] = useState('');
-  const destination = role === 'admin' ? '/admin' : '/guru';
+  const [busy, setBusy] = useState(false);
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
     if (!email.trim() || !password) {
       setNotice('Isi email dan kata sandi terlebih dahulu.');
       return;
     }
-    setNotice('Login akun belum dapat diproses karena API autentikasi belum tersedia. Gunakan tombol “Masuk mode demo” untuk melihat tampilan.');
+    setBusy(true);
+    setNotice('');
+    try {
+      const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, role }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Login gagal.');
+      const requested = new URLSearchParams(window.location.search).get('next') || '';
+      const path = requested.split('#')[0];
+      const allowed = ['/guru', '/ai-learning-generator.html', ...(data.user.role === 'admin' ? ['/admin'] : [])];
+      router.replace(allowed.includes(path) ? requested : data.redirectTo);
+      router.refresh();
+    } catch (error) { setNotice(error.message || 'Tidak dapat menghubungi server.'); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -43,10 +55,10 @@ export default function LoginPage() {
             <input id="sdn-email" type="email" required autoComplete="username" placeholder="nama@sekolah.sch.id" value={email} onChange={e => setEmail(e.target.value)} />
             <label htmlFor="sdn-password">Kata sandi</label>
             <div className="sdn-login__password"><input id="sdn-password" type={visible ? 'text' : 'password'} required autoComplete="current-password" placeholder="Masukkan kata sandi" value={password} onChange={e => setPassword(e.target.value)}/><button type="button" onClick={() => setVisible(v => !v)} aria-label={visible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>{visible ? 'Sembunyikan' : 'Lihat'}</button></div>
-            <button className="sdn-login__submit" type="submit">Masuk ke {role === 'guru' ? 'Workspace Guru' : 'Admin Editor'} <Icon name="arrow" size={17} /></button>
+            <button className="sdn-login__submit" type="submit" disabled={busy}>{busy ? 'Memeriksa akun…' : `Masuk ke ${role === 'guru' ? 'Workspace Guru' : 'Admin Editor'}`} <Icon name="arrow" size={17} /></button>
           </form>
           {notice && <p role="status" className="sdn-login__notice">{notice}</p>}
-          <div className="sdn-login__demo"><span>Mode pratinjau frontend · tanpa autentikasi</span><button type="button" onClick={() => router.push(destination)}>Masuk mode demo <Icon name="arrow" size={14}/></button></div>
+          <div className="sdn-login__demo"><span>Akun guru dibuat oleh administrator sekolah.</span></div>
           <p className="sdn-login__back"><a href="/">← Kembali ke beranda</a></p>
         </div>
       </main>

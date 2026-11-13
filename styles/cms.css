@@ -1,0 +1,9 @@
+.admin-main .cms-image-field { display: grid; gap: 12px; margin-bottom: 24px; }
+.admin-main .cms-image-field label { display: grid; gap: 8px; font-size: 13px; }
+.admin-main .cms-image-field input { max-width: 100%; min-width: 0; padding: 12px; border: 1px solid #dce4ef; border-radius: 9px; background: white; font: inherit; }
+.admin-main .cms-image-field small, .admin-main .cms-image-hint { color: #63748e; font-size: 12px; line-height: 1.6; }
+.admin-main .cms-image-field [role=alert] { color: #9e2d23; font-size: 13px; }
+.admin-main .cms-image-field .admin-upload-preview { width: 100%; max-height: 220px; object-fit: contain; background: #f5f7fb; border-radius: 10px; }
+.admin-main .cms-image-field button { justify-self: start; }
+.admin-main .cms-admin-thumb { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
+.admin-main .admin-edit-card { margin-bottom: 24px; }

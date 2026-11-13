@@ -1,0 +1,41 @@
+.materials-page .material-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.materials-page button:disabled { opacity: .6; cursor: wait; }
+.materials-page .material-ready { background: #e3f5eb; color: #216347; }
+.materials-page .material-delete { color: #a32924; border-color: #ebccc9; }
+.materials-page .material-card-copy { min-width: 0; }
+.materials-page .material-excerpt { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.materials-page h2, .materials-page h3, .materials-page p, .materials-page .section-label { overflow-wrap: anywhere; }
+.materials-page .teacher-content-card__actions { align-items: flex-end; }
+.materials-page .material-detail h2 { font-size: clamp(24px, 3vw, 34px); line-height: 1.3; margin: 14px 0; }
+.materials-page .material-detail > .section-label { margin-top: 30px; }
+.materials-page .material-detail > section { margin: 28px 0; }
+.materials-page .material-lesson, .materials-page .material-summary p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
+.materials-page .material-updated, .materials-page .material-editor > p { color: var(--sdn-muted); font-size: 13px; line-height: 1.7; }
+.materials-page .material-summary { border-left: 3px solid var(--sdn-yellow); padding-left: 18px; }
+.materials-page .material-editor fieldset { border: 0; padding: 0; margin: 24px 0; min-width: 0; }
+.materials-page .material-editor textarea { resize: vertical; }
+.materials-page .material-editor select { width: 100%; min-height: 44px; border: 1px solid var(--sdn-line); border-radius: 9px; padding: 11px; background: white; font: inherit; color: var(--sdn-navy); }
+.materials-page .material-confirm { margin-top: 24px; border-color: #ebccc9; }
+.materials-page .material-confirm p { line-height: 1.7; }
+.materials-page .material-error, .materials-page .material-confirm [role=alert] { color: #a32924; }
+.materials-page .material-empty { text-align: center; padding: 42px 24px; }
+.materials-page .material-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 700px) {
+  .materials-page .teacher-content-card__actions { align-items: flex-start; }
+  .materials-page .teacher-content-card__icon { display: none; }
+  .materials-page .material-detail, .materials-page .material-editor { padding: 20px; }
+}
+
+/* Reset older fixed-sidebar rules so teacher navigation remains usable on phones. */
+@media (max-width: 780px) {
+  .teacher-shell { grid-template-columns: minmax(0, 1fr); }
+  .teacher-shell > .teacher-sidebar { position: static; inset: auto; width: 100%; height: auto; min-height: 0; align-items: stretch; gap: 12px; padding: 12px 16px; overflow: visible; }
+  .teacher-shell .teacher-brand { padding: 0; }
+  .teacher-shell .teacher-brand > span:last-child { display: block; }
+  .teacher-shell .teacher-school, .teacher-shell .teacher-sidebar__bottom { display: none; }
+  .teacher-shell .teacher-sidebar nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 0; }
+  .teacher-shell .teacher-sidebar nav button { width: 100%; min-height: 52px; flex-direction: column; justify-content: center; gap: 5px; padding: 6px 2px; font-size: 10px; }
+  .teacher-shell .teacher-sidebar nav button > span { display: inline; }
+  .teacher-shell .teacher-main { grid-column: 1; }
+  .teacher-shell .teacher-mobile-brand { display: block; }
+}

@@ -6,11 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "db:setup": "node scripts/setup-database.cjs",
+    "db:migrate": "node scripts/migrate-database.cjs",
     "pretest": "npm run build",
-    "test": "node --test tests/migration.test.mjs"
+    "test": "node --test tests/migration.test.mjs tests/public-content.test.mjs tests/grade-csv.test.mjs"
   },
   "dependencies": {
     "next": "^15.2.4",
+    "pg": "^8.23.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

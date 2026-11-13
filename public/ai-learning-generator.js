@@ -1,5 +1,5 @@
 /* Frontend demo services are intentionally isolated here.
- * AI generation calls the local Express backend. The API key never reaches this browser page:
+ * AI generation calls the authenticated Next.js backend. The API key never reaches this browser page:
  * /api/ai/generate-material, /api/ai/generate-questions, /api/ai/analyze-assessment.
  * Reference lookup and answer-sheet grading remain mock services until their provider is wired.
  * Google/PDF discovery must run on the backend because browser-side scraping is blocked by CORS,
@@ -30,6 +30,7 @@
 
   const state = {
     view: readView(),
+    user: null,
     materialStep: 1,
     materialConfig: { subject: 'IPA', grade: 'Kelas 5 SD', topic: 'Sistem Pernapasan Manusia', objective: 'Siswa mampu menjelaskan fungsi organ pernapasan manusia.', duration: '2 × 35 menit', depth: 'Sesuai usia' },
     materialFormat: 'Materi + Aktivitas',
@@ -67,6 +68,7 @@
     try {
       const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: controller.signal });
       const data = await response.json().catch(() => ({}));
+      if (response.status === 401) { window.location.assign('/login?next=' + encodeURIComponent(window.location.pathname + window.location.hash)); throw new Error('Sesi berakhir. Silakan masuk kembali.'); }
       if (!response.ok) throw new Error(data.error || 'Permintaan AI gagal.');
       return data;
     } catch (error) {
@@ -156,11 +158,11 @@
 
   function showDialog(kind, data = {}) {
     const dialogs = {
-      profile: `<p class="eyebrow">Akun aktif</p><h2>Profil Bu Rina</h2><p>Guru kelas 5A di SDN Bangah No. 383. Semua materi dan penilaian yang dibuat di workspace ini tersimpan atas nama akun ini.</p><ul class="dialog-list"><li><strong>Peran</strong><br />Guru kelas</li><li><strong>Konteks belajar</strong><br />Kelas 5A · Tahun ajaran 2024/25</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Tutup</button>`,
+      profile: `<p class="eyebrow">Akun aktif</p><h2>Profil ${escapeHtml(state.user?.name || 'Guru')}</h2><p>${escapeHtml(state.user?.className || 'Guru')} di SDN Bangah No. 383. Semua materi dan penilaian yang dibuat di workspace ini tersimpan atas nama akun ini.</p><ul class="dialog-list"><li><strong>Peran</strong><br />Guru kelas</li><li><strong>Konteks belajar</strong><br />Kelas 5A · Tahun ajaran 2024/25</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Tutup</button>`,
       settings: `<p class="eyebrow">Preferensi workspace</p><h2>Pengaturan</h2><p>Atur pengalaman membuat materi dan soal. Pengaturan ini masih berupa contoh UI dan belum terhubung ke backend.</p><ul class="dialog-list"><li>Bahasa keluaran AI <strong>Bahasa Indonesia</strong></li><li>Mode tinjauan guru <strong>Selalu aktif</strong></li><li>Notifikasi aktivitas <strong>Aktif</strong></li></ul><button class="button button--primary" type="button" data-action="close-dialog">Selesai</button>`,
       help: `<p class="eyebrow">Panduan singkat</p><h2>AI membantu, guru memutuskan.</h2><p>Mulai dari konteks belajar, baca hasil AI, ubah bagian yang diperlukan, lalu simpan atau gunakan. Tidak ada materi yang dipublikasikan otomatis.</p><ul class="dialog-list"><li><strong>1 · Beri konteks</strong><br />Topik, kelas, tujuan, dan durasi membantu AI menyusun keluaran yang relevan.</li><li><strong>2 · Periksa</strong><br />Setiap paragraf dan soal dapat diedit atau dibuat ulang per bagian.</li><li><strong>3 · Setujui</strong><br />Simpan sebagai draft atau gunakan setelah yakin dengan isinya.</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Saya mengerti</button>`,
       notifications: `<p class="eyebrow">Notifikasi</p><h2>Beberapa hal baru.</h2><ul class="dialog-list"><li><strong>Hasil penilaian siap ditinjau</strong><br />Ulangan Harian Matematika memiliki satu lembar dengan confidence sedang.</li><li><strong>Catatan tersimpan</strong><br />Materi IPA — Sistem Pernapasan tersimpan sebagai draft kemarin.</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Tutup</button>`,
-      school: `<p class="eyebrow">Konteks workspace</p><h2>SDN Bangah No. 383</h2><p>Prototype ini menggunakan satu konteks sekolah dan satu kelas agar alur demo tetap fokus.</p><ul class="dialog-list"><li><strong>Kelas aktif</strong><br />5A · Wali kelas Bu Rina</li><li><strong>Tahun ajaran</strong><br />2024/25</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Gunakan konteks ini</button>`,
+      school: `<p class="eyebrow">Konteks workspace</p><h2>SDN Bangah No. 383</h2><p>Prototype ini menggunakan satu konteks sekolah dan satu kelas agar alur demo tetap fokus.</p><ul class="dialog-list"><li><strong>Kelas aktif</strong><br />${escapeHtml(state.user?.className || 'Kelas belum ditentukan')} - ${escapeHtml(state.user?.name || 'Guru')}</li><li><strong>Tahun ajaran</strong><br />2024/25</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Gunakan konteks ini</button>`,
       student: `<p class="eyebrow">Inspeksi jawaban</p><h2>${escapeHtml(data.name || 'Siswa')}</h2><p>Ringkasan ini membantu guru menemukan jawaban yang perlu dilihat lebih dekat.</p><ul class="dialog-list"><li><strong>Jawaban benar</strong><br />${data.correct || 0} dari 20 soal</li><li><strong>Jawaban salah</strong><br />${data.wrong || 0} soal</li><li><strong>Confidence pembacaan</strong><br />${data.confidence || 'Tinggi'} · cocokkan dengan lembar asli bila perlu</li></ul><button class="button button--primary" type="button" data-action="close-dialog">Kembali ke hasil</button>`,
     };
     setDialog(dialogs[kind] || dialogs.help);
@@ -216,7 +218,7 @@
 
   function renderDashboard() {
     return `<div class="view dashboard-view">
-      <header class="view-header"><div><p class="eyebrow">Selasa, 20 Mei 2025 · Workspace guru</p><h1>Selamat datang, Bu Rina.</h1><p>Siap membuat pembelajaran hari ini? Mulai dari satu ide, lalu biarkan AI membantu merapikannya.</p></div><span class="badge badge--green">SDN Bangah No. 383 · Kelas 5A</span></header>
+      <header class="view-header"><div><p class="eyebrow">Selasa, 20 Mei 2025 · Workspace guru</p><h1>Selamat datang, ${escapeHtml(state.user?.name || 'Guru')}.</h1><p>Siap membuat pembelajaran hari ini? Mulai dari satu ide, lalu biarkan AI membantu merapikannya.</p></div><span class="badge badge--green">SDN Bangah No. 383 · Kelas 5A</span></header>
       <section class="dashboard-welcome" aria-labelledby="welcome-title"><div><p class="section-label">Ruang kerja hari ini</p><h2 id="welcome-title">Buat pembelajaran yang terasa dekat dengan siswa.</h2><p>AI membantu menyusun materi dan soal berdasarkan konteks yang kamu berikan. Kamu tetap menjadi editor dan pengambil keputusan terakhir.</p></div><div class="welcome-art" aria-hidden="true"><div class="welcome-art__note"><span>Prinsip hari ini</span><strong>Periksa<br />sebelum<br />digunakan.</strong></div></div></section>
       <section class="quick-section" aria-labelledby="quick-title"><div class="quick-section__head"><h2 id="quick-title">Apa yang ingin dibuat?</h2><p>Tiga langkah utama untuk mulai.</p></div><div class="quick-actions">
         <button class="quick-action" type="button" data-view="material"><span class="quick-action__icon" data-icon="plus"></span><span><strong>Buat materi dengan AI</strong><small>Dari topik dan tujuan belajar</small></span><span class="quick-action__arrow" data-icon="arrow" aria-hidden="true"></span></button>
@@ -682,8 +684,8 @@
 
   async function saveQuestionsToWorkspace() {
     try {
-      const assessment = await requestAI('/api/assessments', { title: `${state.questionConfig.subject} — ${state.questionConfig.topic}`, subject: state.questionConfig.subject, grade: state.questionConfig.grade, questionCount: state.questions.length || state.questionConfig.total, duration: state.questionConfig.duration, status: 'Draft', updatedAt: 'Hari ini' });
-      await Promise.all(state.questions.map(({ id: _id, ...question }, index) => requestAI('/api/questions', { ...question, assessmentId: assessment.id, number: index + 1 })));
+      await requestAI('/api/assessments', { title: `${state.questionConfig.subject} — ${state.questionConfig.topic}`, subject: state.questionConfig.subject, grade: state.questionConfig.grade, questionCount: state.questions.length || state.questionConfig.total, duration: state.questionConfig.duration, status: 'Draft', updatedAt: 'Hari ini', questions: state.questions });
+
       showToast('Ulangan dan soal AI disimpan sebagai draft.');
     } catch (error) { showToast(error.message); }
   }
@@ -735,7 +737,32 @@
     render();
   }
 
+
+  async function loadSession() {
+    try {
+      const response = await fetch('/api/me', { cache: 'no-store' });
+      if (response.status === 401) { window.location.assign('/login?next=' + encodeURIComponent(window.location.pathname + window.location.hash)); return; }
+      if (!response.ok) throw new Error('Profil akun belum tersedia.');
+      state.user = (await response.json()).user;
+      const name = state.user.name;
+      const label = state.user.className || (state.user.role === 'admin' ? 'Administrator' : 'Guru');
+      document.querySelectorAll('.sidebar-user strong, .topbar-profile__text strong').forEach((node) => { node.textContent = name; });
+      document.querySelectorAll('.sidebar-user small, .topbar-profile__text small, .school-switcher small').forEach((node) => { node.textContent = label; });
+      document.querySelectorAll('.avatar').forEach((node) => { node.textContent = name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(); });
+      render();
+    } catch (error) { showToast(error.message); }
+  }
+
+  document.querySelector('#session-logout').addEventListener('click', async () => {
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('Gagal keluar. Coba kembali.');
+      window.location.assign('/login');
+    } catch (error) { showToast(error.message); }
+  });
+
   window.addEventListener('hashchange', render);
   hydrateIcons(document);
   render();
+  loadSession();
 })();

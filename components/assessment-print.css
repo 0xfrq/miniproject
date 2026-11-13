@@ -1,0 +1,53 @@
+.assessment-print, .assessment-print * { box-sizing: border-box; }
+.assessment-print { min-height: 100vh; padding: 24px 16px 48px; background: #eaf0f6; color: #111; font: 14px/1.6 Arial, Helvetica, sans-serif; }
+.assessment-print h1, .assessment-print h2, .assessment-print p, .assessment-print dl, .assessment-print ol { margin: 0; }
+.assessment-print-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; max-width: 920px; margin: 0 auto 24px; padding: 18px; border: 1px solid #d4dce6; border-radius: 12px; background: #fff; }
+.assessment-print-toolbar a { color: #173c6a; font-weight: bold; text-decoration: underline; font-family: inherit; font-size: 14px; }
+.assessment-print-toolbar > div { flex: 1; min-width: 220px; }
+.assessment-print-toolbar p { font-size: 12px; line-height: 1.6; color: #4c5f76; }
+.assessment-print-toolbar button { padding: 12px 18px; border: 1px solid #173c6a; border-radius: 8px; background: #173c6a; color: #fff; cursor: pointer; font: bold 13px Arial, sans-serif; }
+.assessment-print-toolbar button:disabled { opacity: .5; cursor: not-allowed; }
+.assessment-print-empty { max-width: 800px; margin: 0 auto 20px !important; padding: 16px; background: #fff5d8; }
+.assessment-print-paper { width: min(210mm, 100%); min-height: 297mm; margin: auto; padding: 18mm 16mm; background: #fff; border: 1px solid #d4dce6; box-shadow: 0 10px 35px #132a5010; font-size: 11pt; line-height: 1.6; }
+.assessment-print-paper h1, .assessment-print-paper h2, .assessment-print-paper p, .assessment-print-paper dd, .assessment-print-paper li { color: #111; font-family: Arial, Helvetica, sans-serif; overflow-wrap: anywhere; letter-spacing: normal; }
+.assessment-print-header { padding-bottom: 18px; border-bottom: 2px solid #111; }
+.assessment-print-school { text-align: center; font-size: 15pt; font-weight: bold; }
+.assessment-print-address { text-align: center; margin: 4px 0 18px !important; font-size: 9pt; }
+.assessment-print-header h1 { font-size: 14pt; line-height: 1.4; font-weight: bold; text-align: center; margin: 18px 0 6px; }
+.assessment-print-header h2 { font-size: 12pt; line-height: 1.5; font-weight: bold; text-align: center; margin-bottom: 14px; }
+.assessment-print-draft { border: 1px solid #111; padding: 5px 10px; margin: 12px 0 !important; text-align: center; font-size: 10pt; font-weight: bold; }
+.assessment-print-header dl { display: grid; grid-template-columns: 135px minmax(0, 1fr); gap: 4px 10px; font-size: 10pt; }
+.assessment-print-header dt { font-weight: bold; }
+.assessment-print-header dd { margin: 0; }
+.assessment-print-identity { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; padding: 18px 0; }
+.assessment-print-identity p:first-child { grid-column: 1 / -1; }
+.assessment-print-identity p { display: flex; gap: 6px; font-size: 10pt; }
+.assessment-print-identity span { flex: 1; border-bottom: 1px dotted #444; }
+.assessment-print-instructions { font-size: 10pt; padding: 12px 0; }
+.assessment-print-questions { padding: 0 0 0 24px; list-style-type: decimal; }
+.assessment-print-questions > li { margin: 0 0 24px; padding-left: 6px; break-inside: avoid; page-break-inside: avoid; }
+.assessment-print-type { font-size: 9pt; font-weight: bold; margin-bottom: 4px !important; }
+.assessment-print-text, .assessment-print-options li, .assessment-print-solution p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.assessment-print-options { padding-left: 24px; margin-top: 8px !important; list-style-type: upper-alpha; }
+.assessment-print-options li { padding: 2px 0 2px 4px; }
+.assessment-print-mc-space { margin-top: 12px !important; font-size: 10pt; }
+.assessment-print-answer-lines { margin-top: 6px; }
+.assessment-print-answer-lines > div { height: 8mm; border-bottom: 1px solid #aaa; }
+.assessment-print-answer { margin: 10px 0 6px !important; }
+.assessment-print-explanation { margin-top: 6px !important; }
+@media screen and (max-width: 600px) {
+  .assessment-print { padding: 12px 10px; }
+  .assessment-print-paper { padding: 24px 18px; }
+  .assessment-print-toolbar { padding: 14px; }
+  .assessment-print-toolbar > div { min-width: 0; flex-basis: 100%; }
+}
+@page { size: A4; margin: 16mm 15mm 18mm; }
+@media print {
+  html:has(.assessment-print), body:has(.assessment-print) { padding: 0 !important; margin: 0 !important; background: #fff !important; }
+  .assessment-print { min-height: 0; padding: 0; background: #fff; }
+  .assessment-print .assessment-print-toolbar, .assessment-print .assessment-print-empty { display: none !important; }
+  .assessment-print-paper { width: auto; min-height: 0; margin: 0; padding: 0; border: 0; box-shadow: none; font-size: 10.5pt; }
+  .assessment-print-header { break-inside: avoid; }
+  .assessment-print-paper p { orphans: 3; widows: 3; }
+  .assessment-print-paper a { text-decoration: none; color: #111; }
+}

@@ -1,10 +1,12 @@
 import ai from '../../../../lib/ai-client';
 import api from '../../../../lib/api';
+import auth from '../../../../lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const POST = api.handleApi(async (request) => {
+  await auth.requireUser(request);
   const body = await api.readObject(request, 'Query referensi tidak valid.');
   const { title = '', isbn = '' } = body;
   if (!title && !isbn) throw new api.ApiError(400, 'Nama buku atau ISBN wajib diisi.');

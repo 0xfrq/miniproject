@@ -1,22 +1,15 @@
 'use client';
 
-function AssessmentsPage({ assessments, questions, onCreate, onNotice }) {
-  const [view, setView] = useState('questions');
-  const [selectedAssessment, setSelectedAssessment] = useState(assessments[0]?.id || 'assessment-1');
-  const visibleQuestions = questions.filter((question) => !selectedAssessment || !question.assessmentId || question.assessmentId === selectedAssessment);
-
-  return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · asesmen" title="Ulangan harian." description="Kelola daftar soal dan buka kunci jawaban secara terpisah agar lembar soal tetap siap dibagikan." action={<button className="teacher-button teacher-button--dark" onClick={onCreate}><Icon name="plus" size={15} /> Tambah ulangan</button>} />
-    <div className="manual-ai-banner manual-ai-banner--coral"><span><Icon name="spark" size={19} /></span><div><strong>Generate soal dengan AI tersedia.</strong><p>Generate dan review soal tetap dilakukan melalui generator. Saat ditampilkan di workspace, kunci jawaban berada di panel terpisah.</p><a className="teacher-inline-link" href="/ai-learning-generator.html#questions">Buka generator soal <Icon name="arrow" size={13} /></a></div></div>
-    <div className="assessment-toolbar"><label>Ulangan aktif<select value={selectedAssessment} onChange={(event) => setSelectedAssessment(event.target.value)}>{assessments.map((assessment) => <option key={assessment.id} value={assessment.id}>{assessment.title}</option>)}{!assessments.length && <option value="assessment-1">Ulangan demo</option>}</select></label><div className="assessment-tabs"><button className={view === 'questions' ? 'is-active' : ''} type="button" onClick={() => setView('questions')}>Daftar soal</button><button className={view === 'answers' ? 'is-active' : ''} type="button" onClick={() => setView('answers')}>Kunci jawaban</button></div></div>
-    {view === 'questions' ? <section className="teacher-panel assessment-question-panel"><div className="teacher-panel__head"><div><span className="section-label">Lembar soal</span><h2>Soal tanpa kunci jawaban.</h2></div><span className="teacher-badge teacher-badge--soft">{visibleQuestions.length} soal</span></div><div className="question-list-separated">{visibleQuestions.map((question, index) => <article className="question-separated" key={question.id}><span className="question-separated__number">{String(index + 1).padStart(2, '0')}</span><div><strong>{question.text}</strong><small>{question.type} · {question.difficulty} · {question.objective || 'Kompetensi tersimpan'}</small>{question.options?.length > 0 && <ol>{question.options.map((option, optionIndex) => <li key={`${question.id}-${optionIndex}`}>{option}</li>)}</ol>}</div></article>)}</div></section> : <section className="teacher-panel assessment-answer-panel"><div className="teacher-panel__head"><div><span className="section-label">Dokumen internal guru</span><h2>Kunci jawaban.</h2></div><span className="teacher-badge teacher-badge--yellow">Jangan dibagikan</span></div><div className="answer-key-list">{visibleQuestions.map((question, index) => <article key={question.id}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{question.answer || question.correct || 'Belum diisi'}</strong><small>{question.text}</small></div><em>{question.explanation || 'Tidak ada pembahasan tersimpan.'}</em></article>)}</div><div className="answer-key-note"><Icon name="warning" size={17} /><p>Kunci jawaban dipisahkan dari daftar soal agar dapat digunakan guru saat evaluasi tanpa ikut tercetak pada lembar siswa.</p></div></section>}
-  </div>;
-}
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from './ui-icon';
+import LogoutButton from './logout-button';
+import TeacherMaterials from './teacher-materials';
+import TeacherAssessments from './teacher-assessments';
+import assessmentRules from '../lib/assessments';
+import gradingRules from '../lib/grading';
+import TeacherGrading from './teacher-grading';
 
 
-const initialMaterial = { title: 'Sistem Pernapasan Manusia', subject: 'IPA', grade: 'Kelas 5 SD', summary: 'Materi tentang organ dan fungsi sistem pernapasan.', content: 'Sistem pernapasan manusia terdiri dari organ yang bekerja bersama untuk mengambil oksigen dan membuang karbon dioksida.', status: 'Draft', updatedAt: '19 Mei 2025' };
-const initialQuestions = [{ id: 'question-demo-1', text: 'Pecahan manakah yang senilai dengan 1/2?', type: 'Pilihan Ganda', answer: '2/4', difficulty: 'Mudah', options: ['2/4', '2/3', '3/5', '4/5'] }, { id: 'question-demo-2', text: 'Hasil dari 2/3 + 1/6 adalah …', type: 'Pilihan Ganda', answer: '5/6', difficulty: 'Sedang', options: ['1/2', '5/6', '3/9', '1 1/6'] }];
 
 function Layout({ active, setActive, children, user, userLoading }) {
   const links = [['dashboard', 'Dashboard', 'home'], ['materials', 'Materi', 'book'], ['assessments', 'Ulangan', 'clipboard'], ['grading', 'Penilaian', 'chart'], ['history', 'Riwayat', 'clock']];
@@ -33,7 +26,7 @@ function Layout({ active, setActive, children, user, userLoading }) {
       <nav aria-label="Navigasi workspace guru">{links.map(([key, label, icon]) => <button type="button" key={key} className={active === key ? 'is-active' : ''} onClick={() => setActive(key)}><i><Icon name={icon} size={17} /></i><span>{label}</span></button>)}</nav>
       <div className="teacher-sidebar__bottom"><div className="teacher-ai-note"><span><Icon name="spark" size={18} /></span><strong>Workspace pembelajaran</strong><p>Kelola materi, asesmen, dan hasil penilaian dari satu tempat.</p></div><a href="/"><Icon name="chevronLeft" size={14} /> Kembali ke profil</a></div>
     </aside>
-    <main className="teacher-main"><header className="teacher-topbar"><div className="teacher-mobile-brand"><strong>SDN Bangah</strong></div><span className="teacher-breadcrumb">Workspace Guru / <strong>{links.find(([key]) => key === active)?.[1]}</strong></span><div className="teacher-topbar__right"><span className="teacher-mode">{userLoading ? 'Memuat profil...' : (user?.name || 'Profil belum terhubung')}</span><span className="teacher-avatar" title={user?.name || 'Guru'}>{initials}</span></div></header>{children}</main>
+    <main className="teacher-main"><header className="teacher-topbar"><div className="teacher-mobile-brand"><strong>SDN Bangah</strong></div><span className="teacher-breadcrumb">Workspace Guru / <strong>{links.find(([key]) => key === active)?.[1]}</strong></span><div className="teacher-topbar__right"><span className="teacher-mode">{userLoading ? 'Memuat profil...' : (user?.name || 'Profil belum terhubung')}</span><span className="teacher-avatar" title={user?.name || 'Guru'}>{initials}</span><LogoutButton /></div></header>{children}</main>
   </div>;
 }
 
@@ -41,9 +34,15 @@ export default function TeacherWorkspace() {
   const [active, setActive] = useState('dashboard');
   const [dashboard, setDashboard] = useState(null);
   const [materials, setMaterials] = useState([]);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [materialsError, setMaterialsError] = useState('');
   const [assessments, setAssessments] = useState([]);
+  const [assessmentsLoading, setAssessmentsLoading] = useState(true);
+  const [assessmentsError, setAssessmentsError] = useState('');
   const [questions, setQuestions] = useState([]);
   const [grading, setGrading] = useState([]);
+  const [gradingLoading, setGradingLoading] = useState(true);
+  const [gradingError, setGradingError] = useState('');
   const [notice, setNotice] = useState('');
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
@@ -67,9 +66,15 @@ export default function TeacherWorkspace() {
       setDashboard(dash && typeof dash === 'object' ? dash : null);
       setDashboardError(!dash);
       setMaterials(Array.isArray(materialData) ? materialData : []);
+      setMaterialsError(Array.isArray(materialData) ? '' : 'Materi belum dapat dimuat. Periksa koneksi, lalu coba lagi.');
+      setMaterialsLoading(false);
       setAssessments(Array.isArray(assessmentData) ? assessmentData : []);
       setQuestions(Array.isArray(questionData) ? questionData : []);
+      setAssessmentsError(Array.isArray(assessmentData) && Array.isArray(questionData) ? '' : 'Ulangan dan soal belum dapat dimuat. Coba lagi.');
+      setAssessmentsLoading(false);
       setGrading(Array.isArray(gradingData) ? gradingData : []);
+      setGradingError(Array.isArray(gradingData) ? '' : 'Hasil penilaian belum dapat dimuat. Coba lagi.');
+      setGradingLoading(false);
       // Dukungan bentuk {user:{...}}, {profile:{...}} atau objek profil langsung.
       const person = profile?.user || profile?.profile || profile;
       setUser(person && typeof person === 'object' && (person.name || person.nama) ? { ...person, name: person.name || person.nama } : null);
@@ -77,37 +82,117 @@ export default function TeacherWorkspace() {
       setDashboardLoading(false);
       if (!dash) setNotice('Statistik belum tersedia. Periksa koneksi API dashboard.');
     }
-    load().catch(() => { if (!controller.signal.aborted) { setUserLoading(false); setDashboardLoading(false); setDashboardError(true); setNotice('Data belum dapat dimuat.'); } });
+    load().catch(() => { if (!controller.signal.aborted) { setMaterialsLoading(false); setMaterialsError('Materi belum dapat dimuat. Coba lagi.'); setAssessmentsLoading(false); setAssessmentsError('Ulangan dan soal belum dapat dimuat. Coba lagi.'); setGradingLoading(false); setGradingError('Hasil penilaian belum dapat dimuat. Coba lagi.'); setUserLoading(false); setDashboardLoading(false); setDashboardError(true); setNotice('Data belum dapat dimuat.'); } });
     return () => controller.abort();
   }, []);
 
-  async function saveNew(collection, payload) {
-    const response = await fetch(`/api/${collection}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    if (!response.ok) { setNotice('Data belum berhasil disimpan.'); return null; }
-    const item = await response.json();
-    if (collection === 'materials') setMaterials((items) => [item, ...items]);
-    if (collection === 'assessments') setAssessments((items) => [item, ...items]);
-    setNotice('Data berhasil disimpan ke database lokal.');
+  async function materialRequest(url, options) {
+    let response;
+    try { response = await fetch(url, { credentials: 'same-origin', cache: 'no-store', ...options }); }
+    catch { throw new Error('Koneksi terputus. Perubahan belum disimpan. Coba lagi.'); }
+    const data = response.status === 204 ? null : await response.json().catch(() => null);
+    if (!response.ok) throw new Error(response.status === 401 ? 'Sesi berakhir. Silakan masuk kembali.' : data?.error || 'Permintaan belum berhasil. Coba lagi.');
+    return data;
+  }
+
+  async function retryMaterials() {
+    setMaterialsLoading(true); setMaterialsError('');
+    try { setMaterials(await materialRequest('/api/materials')); }
+    catch (error) { setMaterialsError(error.message); }
+    finally { setMaterialsLoading(false); }
+  }
+
+  function syncMaterialDashboard(items) {
+    setDashboard((current) => current ? { ...current, counts: { ...current.counts, materials: items.length }, recentMaterials: items.slice(0, 4) } : current);
+  }
+
+  async function saveMaterial(id, payload) {
+    setNotice('');
+    const item = await materialRequest(`/api/materials${id ? '/' + encodeURIComponent(id) : ''}`, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const next = id ? materials.map((existing) => existing.id === id ? item : existing) : [item, ...materials];
+    setMaterials(next); syncMaterialDashboard(next);
+    setNotice(id ? 'Materi berhasil diperbarui.' : 'Materi berhasil disimpan.');
     return item;
   }
 
+  async function deleteMaterial(id) {
+    setNotice('');
+    await materialRequest(`/api/materials/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    const next = materials.filter((item) => item.id !== id);
+    setMaterials(next); syncMaterialDashboard(next); setNotice('Materi berhasil dihapus.');
+  }
+
+  async function retryAssessments() {
+    setAssessmentsLoading(true); setAssessmentsError('');
+    try {
+      const [items, savedQuestions] = await Promise.all([materialRequest('/api/assessments'), materialRequest('/api/questions')]);
+      setAssessments(items); setQuestions(savedQuestions);
+    } catch (error) { setAssessmentsError(error.message); }
+    finally { setAssessmentsLoading(false); }
+  }
+
+  async function saveAssessment(id, payload) {
+    setNotice('');
+    const saved = await materialRequest(`/api/assessments${id ? '/' + encodeURIComponent(id) : ''}`, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const { questions: savedQuestions, ...assessment } = saved;
+    const next = id ? assessments.map((item) => item.id === id ? assessment : item) : [assessment, ...assessments];
+    setAssessments(next);
+    setQuestions((current) => [...current.filter((question) => question.assessmentId !== assessment.id), ...savedQuestions]);
+    setDashboard((current) => current ? { ...current, counts: { ...current.counts, assessments: next.length }, recentAssessments: next.slice(0, 4) } : current);
+    setNotice(id ? 'Ulangan dan soal berhasil diperbarui.' : 'Ulangan dan soal berhasil disimpan.');
+    return assessment;
+  }
+
+  async function deleteAssessment(id) {
+    setNotice('');
+    await materialRequest(`/api/assessments/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    const next = assessments.filter((item) => item.id !== id);
+    setAssessments(next); setQuestions((current) => current.filter((question) => question.assessmentId !== id));
+    setDashboard((current) => current ? { ...current, counts: { ...current.counts, assessments: next.length }, recentAssessments: next.slice(0, 4) } : current);
+    setNotice('Ulangan dan seluruh soalnya berhasil dihapus.');
+  }
+
+  async function retryGrading() {
+    setGradingLoading(true); setGradingError('');
+    try {
+      const [results, items, savedQuestions] = await Promise.all([materialRequest('/api/grading'), materialRequest('/api/assessments'), materialRequest('/api/questions')]);
+      setGrading(results); setAssessments(items); setQuestions(savedQuestions); setAssessmentsError('');
+      syncGradingDashboard(results);
+    } catch (error) { setGradingError(error.message); }
+    finally { setGradingLoading(false); }
+  }
+
+  function syncGradingDashboard(items) {
+    setDashboard((current) => current ? { ...current, counts: { ...current.counts, graded: items.length }, recentResults: items.slice(0, 5), gradingSummary: gradingRules.summary(items) } : current);
+  }
+
+  async function saveGrading(id, payload) {
+    setNotice('');
+    const item = await materialRequest(`/api/grading${id ? '/' + encodeURIComponent(id) : ''}`, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const next = id ? grading.map((existing) => existing.id === id ? item : existing) : [item, ...grading];
+    setGrading(next); syncGradingDashboard(next); setNotice(id ? 'Hasil penilaian berhasil diperbarui.' : 'Hasil penilaian berhasil disimpan.');
+    return item;
+  }
+
+  async function deleteGrading(id) {
+    setNotice('');
+    await materialRequest(`/api/grading/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    const next = grading.filter((item) => item.id !== id);
+    setGrading(next); syncGradingDashboard(next); setNotice('Hasil penilaian berhasil dihapus.');
+  }
+
+  async function loadGradingAssessment(id) { return materialRequest(`/api/assessments/${encodeURIComponent(id)}`); }
+
+  const displayAssessments = assessments.map((item) => ({ ...item, questionCount: assessmentRules.orderedQuestions(questions, item.id).length }));
+
   async function saveGeneratedMaterial({ config, sections, format, reference }) {
     const content = sections.map((section) => `${section.title}\n${section.body}`).join('\n\n');
-    const item = await saveNew('materials', { title: `${config.subject} · ${config.topic}`, subject: config.subject, grade: config.grade, summary: sections[0]?.body || `Materi ${config.topic}`, content, sections, status: 'Draft', updatedAt: 'Hari ini' });
+    const item = await saveMaterial(null, { title: `${config.subject} · ${config.topic}`, subject: config.subject, grade: config.grade, summary: sections[0]?.body || `Materi ${config.topic}`, content, sections, status: 'Draft' });
     if (item) setNotice('Materi AI disimpan sebagai draft. Periksa sebelum digunakan.');
     return item;
   }
 
-  async function saveGeneratedAssessment({ config, questions }) {
-    const assessment = await saveNew('assessments', { title: `${config.subject} — ${config.topic}`, subject: config.subject, grade: config.grade, questionCount: questions.length || config.total, duration: config.duration, status: 'Draft', updatedAt: 'Hari ini' });
-    if (!assessment) return null;
-    const savedQuestions = await Promise.all(questions.map(({ id: _id, ...question }, index) => fetch('/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...question, assessmentId: assessment.id, number: index + 1 }) }).then((response) => response.ok ? response.json() : null)));
-    setQuestions((items) => [...savedQuestions.filter(Boolean), ...items]);
-    setNotice('Ulangan dan soal AI disimpan sebagai draft. Periksa sebelum digunakan.');
-    return assessment;
-  }
-
-  return <Layout active={active} setActive={setActive} user={user} userLoading={userLoading}>{notice && <div className="teacher-notice">{notice}<button onClick={() => setNotice('')}>×</button></div>}{active === 'dashboard' && <TeacherDashboard dashboard={dashboard} materials={materials} assessments={assessments} grading={grading} user={user} userLoading={userLoading} dashboardLoading={dashboardLoading} dashboardError={dashboardError} setActive={setActive} />}{active === 'materials' && <MaterialsPage materials={materials} onCreate={() => saveNew('materials', { ...initialMaterial, title: 'Materi baru — tulis topik', status: 'Draft', updatedAt: new Date().toISOString() })} onNotice={setNotice} onSaveAi={saveGeneratedMaterial} />}{active === 'assessments' && <LegacyAssessmentsPage assessments={assessments} questions={questions} onCreate={() => saveNew('assessments', { title: 'Ulangan baru — tulis topik', subject: 'IPA', grade: 'Kelas 5 SD', questionCount: 10, duration: '30 menit', status: 'Draft', updatedAt: 'Hari ini' })} onNotice={setNotice} />}{active === 'grading' && <GradingPage grading={grading} onNotice={setNotice} />}{active === 'history' && <TeacherHistory materials={materials} assessments={assessments} grading={grading} />}</Layout>;
+  return <Layout active={active} setActive={setActive} user={user} userLoading={userLoading}>{notice && <div className="teacher-notice" role="status">{notice}<button onClick={() => setNotice('')}>×</button></div>}{active === 'dashboard' && <TeacherDashboard dashboard={dashboard} materials={materials} assessments={displayAssessments} grading={grading} user={user} userLoading={userLoading} dashboardLoading={dashboardLoading} dashboardError={dashboardError} setActive={setActive} />}{active === 'materials' && <TeacherMaterials materials={materials} loading={materialsLoading} loadError={materialsError} onRetry={retryMaterials} onSave={saveMaterial} onDelete={deleteMaterial} renderGenerator={(close) => <MaterialGenerator onCancel={close} onSave={async (payload) => { const item = await saveGeneratedMaterial(payload); if (item) close(); }} />} />}{active === 'assessments' && <TeacherAssessments assessments={assessments} questions={questions} loading={assessmentsLoading} loadError={assessmentsError} onRetry={retryAssessments} onSave={saveAssessment} onDelete={deleteAssessment} />}{active === 'grading' && <TeacherGrading grading={grading} assessments={displayAssessments} loading={gradingLoading || assessmentsLoading} loadError={gradingError || assessmentsError} onRetry={retryGrading} onLoadAssessment={loadGradingAssessment} onSave={saveGrading} onDelete={deleteGrading} onAssessments={() => setActive('assessments')} />}{active === 'history' && <TeacherHistory materials={materials} assessments={displayAssessments} grading={grading} />}</Layout>;
 }
 
 function TeacherHeader({ eyebrow, title, description, action }) { return <header className="teacher-page-header"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{description}</p></div>{action}</header>; }
@@ -115,16 +200,6 @@ function TeacherDashboard({ dashboard, materials, assessments, grading, user, us
 function Stat({ label, value }) { return <div className="teacher-stat"><span>{label}</span><strong>{value}</strong><small>dari API dashboard</small></div>; }
 function PanelHead({ title, link, onClick }) { return <div className="teacher-panel__head"><h2>{title}</h2>{link && <button onClick={onClick}>{link} <Icon name="arrow" size={13} /></button>}</div>; }
 function ListRow({ title, meta, status }) { return <article className="teacher-list-row"><div><strong>{title}</strong><small>{meta}</small></div><span className="teacher-badge teacher-badge--soft">{status}</span></article>; }
-
-function MaterialsPage({ materials, onCreate, onNotice, onSaveAi }) {
-  const [editing, setEditing] = useState(null);
-  const [generatorOpen, setGeneratorOpen] = useState(false);
-  return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · materi" title="Materi pembelajaran." description="Simpan materi yang sudah disiapkan dan pastikan setiap draf punya konteks kelas yang jelas." action={<button className="teacher-button teacher-button--dark" onClick={onCreate}><Icon name="plus" size={15} /> Tambah materi</button>} />
-    {!generatorOpen && <div className="manual-ai-banner"><span><Icon name="spark" size={19} /></span><div><strong>Generate materi dengan AI.</strong><p>Isi konteks pembelajaran, tambahkan judul buku sebagai referensi bila perlu, lalu tinjau hasilnya sebelum disimpan.</p><button className="teacher-button teacher-button--dark" type="button" onClick={() => setGeneratorOpen(true)}>Mulai dengan AI <Icon name="spark" size={15} /></button></div></div>}
-    {generatorOpen && <MaterialGenerator onCancel={() => setGeneratorOpen(false)} onSave={async (payload) => { const item = await onSaveAi(payload); if (item) setGeneratorOpen(false); }} />}
-    <div className="teacher-list">{materials.map((material) => editing === material.id ? <EditableMaterial key={material.id} item={material} onCancel={() => setEditing(null)} onNotice={onNotice} /> : <article key={material.id} className="teacher-content-card"><div className="teacher-content-card__icon"><Icon name="book" size={22} /></div><div><span className="section-label">{material.subject} · {material.grade}</span><h2>{material.title}</h2><p>{material.summary || material.content}</p><small>Diperbarui {material.updatedAt}</small></div><div className="teacher-content-card__actions"><span className="teacher-badge teacher-badge--soft">{material.status}</span><button className="teacher-button teacher-button--quiet" onClick={() => setEditing(material.id)}>Edit</button></div></article>)}</div>
-  </div>;
-}
 
 function MaterialGenerator({ onCancel, onSave }) {
   const [step, setStep] = useState(1);
@@ -172,37 +247,4 @@ function MaterialGenerator({ onCancel, onSave }) {
     {step === 4 && <div className="material-generator__body"><div className="material-review-note"><strong>Draf siap ditinjau.</strong><span>{config.subject} · {config.topic}{selectedReference ? ` · Referensi: ${selectedReference.title}` : ''}</span></div><div className="material-sections">{sections.map((section, index) => <label key={`${section.id}-${index}`}><span>{section.title}</span><textarea rows="5" value={section.body} onChange={(event) => updateSection(index, event.target.value)} /></label>)}</div><div className="material-generator__actions"><button className="teacher-button teacher-button--quiet" type="button" onClick={() => setStep(2)}>Buat ulang</button><button className="teacher-button teacher-button--dark" type="button" onClick={save} disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan sebagai draft'} <Icon name="check" size={15} /></button></div></div>}
   </section>;
 }
-function EditableMaterial({ item, onCancel, onNotice }) { const [draft, setDraft] = useState(item); const change = (key, value) => setDraft((current) => ({ ...current, [key]: value })); async function save() { const response = await fetch(`/api/materials/${item.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(draft) }); if (response.ok) onNotice('Materi berhasil diperbarui.'); onCancel(); } return <article className="teacher-edit-card"><div className="teacher-edit-card__head"><div><span className="section-label">Edit materi</span><h2>{item.title}</h2></div><button onClick={onCancel}>Batal</button></div><div className="teacher-form-grid"><label>Judul materi<input value={draft.title || ''} onChange={(event) => change('title', event.target.value)} /></label><label>Ringkasan<textarea rows="3" value={draft.summary || ''} onChange={(event) => change('summary', event.target.value)} /></label><label className="field-full">Isi materi<textarea rows="6" value={draft.content || ''} onChange={(event) => change('content', event.target.value)} /></label></div><button className="teacher-button teacher-button--dark" onClick={save}><Icon name="check" size={15} /> Simpan materi</button></article>; }
-
-function LegacyAssessmentsPage({ assessments, questions, onCreate, onNotice }) { return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · asesmen" title="Ulangan harian." description="Susun asesmen manual terlebih dahulu. Guru dapat meninjau kunci dan komposisi sebelum diterbitkan." action={<button className="teacher-button teacher-button--dark" onClick={onCreate}><Icon name="plus" size={15} /> Tambah ulangan</button>} /><div className="manual-ai-banner manual-ai-banner--coral"><span><Icon name="spark" size={19} /></span><div><strong>Generate soal dengan AI tersedia.</strong><p>Gunakan AI Learning Generator untuk menyusun soal, meninjau kunci, lalu menyimpannya sebagai draft ulangan.</p><a className="teacher-inline-link" href="/ai-learning-generator.html#questions">Buka generator soal <Icon name="arrow" size={13} /></a></div></div><div className="teacher-two-column"><section className="teacher-panel"><PanelHead title="Daftar ulangan" link="" />{assessments.map((assessment) => <article className="assessment-row" key={assessment.id}><div><span className="section-label">{assessment.subject} · {assessment.grade}</span><h2>{assessment.title}</h2><p>{assessment.questionCount} soal · {assessment.duration}</p></div><div><span className="teacher-badge teacher-badge--soft">{assessment.status}</span><button className="teacher-button teacher-button--quiet" onClick={() => onNotice('Editor soal akan dibuka di modul berikutnya.')}>Buka</button></div></article>)}</section><section className="teacher-panel"><PanelHead title="Contoh soal tersimpan" link="" />{questions.slice(0, 4).map((question, index) => <article className="question-mini" key={question.id}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{question.text}</strong><small>{question.type} · Kunci: {question.answer} · {question.difficulty}</small></div></article>)}</section></div></div>; }
-
-function AutoGradingLegacyPage({ grading, onNotice }) { const [studentName, setStudentName] = useState(''); const [score, setScore] = useState(''); const [rows, setRows] = useState(grading); async function addResult(event) { event.preventDefault(); const numericScore = Number(score); if (!studentName.trim() || !Number.isFinite(numericScore)) return onNotice('Isi nama siswa dan nilai terlebih dahulu.'); const payload = { assessmentId: 'assessment-1', studentName, correct: Math.round(numericScore / 5), wrong: 20 - Math.round(numericScore / 5), score: numericScore, status: 'Selesai', confidence: 'Manual' }; const response = await fetch('/api/grading', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (response.ok) { const item = await response.json(); setRows((current) => [item, ...current]); setStudentName(''); setScore(''); onNotice('Hasil penilaian manual disimpan.'); } } return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · penilaian" title="Hasil penilaian." description="Fitur scan otomatis belum aktif. Untuk sekarang, input hasil secara manual agar dashboard tetap bisa dipresentasikan end-to-end." action={<span className="teacher-badge teacher-badge--yellow">Auto Grading · segera hadir</span>} /><div className="manual-ai-banner manual-ai-banner--blue"><span><Icon name="scan" size={19} /></span><div><strong>Scan lembar jawaban belum aktif.</strong><p>Upload dan computer vision akan ditambahkan setelah backend pemrosesan dokumen siap. Tidak ada hasil otomatis yang diklaim di sini.</p></div></div><div className="grading-grid"><form className="teacher-panel teacher-form" onSubmit={addResult}><span className="section-label">Input demo manual</span><h2>Tambahkan hasil siswa.</h2><label>Nama siswa<input value={studentName} onChange={(event) => setStudentName(event.target.value)} placeholder="Contoh: Citra Lestari" /></label><label>Nilai<input type="number" min="0" max="100" value={score} onChange={(event) => setScore(event.target.value)} placeholder="0–100" /></label><button className="teacher-button teacher-button--dark" type="submit"><Icon name="check" size={15} /> Simpan hasil</button></form><section className="teacher-panel"><PanelHead title="Hasil terbaru" link="" />{rows.map((result) => <article className="grading-row" key={result.id}><div><strong>{result.studentName}</strong><small>{result.confidence} · {result.status}</small></div><span>{result.score}</span></article>)}</section></div></div>; }
-function TeacherHistory({ materials, assessments, grading }) { const items = [...materials.map((item) => ({ type: 'Materi', title: item.title, meta: `${item.subject} · ${item.grade}`, date: item.updatedAt })), ...assessments.map((item) => ({ type: 'Ulangan', title: item.title, meta: `${item.questionCount} soal · ${item.grade}`, date: item.updatedAt })), ...grading.map((item) => ({ type: 'Nilai', title: `Hasil ${item.studentName}`, meta: `Nilai ${item.score}`, date: 'Tersimpan' }))]; return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · arsip" title="Riwayat aktivitas." description="Materi, ulangan, dan hasil penilaian yang sudah tercatat di workspace." /><div className="teacher-history-list">{items.map((item, index) => <article key={`${item.type}-${index}`}><span>{item.type}</span><div><strong>{item.title}</strong><small>{item.meta}</small></div><time>{item.date}</time></article>)}</div></div>; }
-
-function GradingPage({ grading, onNotice }) {
-  const [stage, setStage] = useState('upload');
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [stream, setStream] = useState(null);
-  const [scanFile, setScanFile] = useState(null);
-  const [studentName, setStudentName] = useState('');
-  const [answers, setAnswers] = useState([]);
-  const videoRef = useRef(null);
-  const answerKey = ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C', 'A'];
-
-  function buildDummyScan(file) { setScanFile(file); setAnswers(answerKey.map((correct, index) => ({ number: index + 1, expected: correct, scanned: index === 2 ? 'A' : index === 6 ? 'C' : correct, confidence: index === 2 || index === 6 ? 'Perlu dikonfirmasi' : 'Tinggi' }))); setStage('review'); }
-  function handleFile(event) { const file = event.target.files?.[0]; if (file) buildDummyScan(file); }
-  async function openCamera() { if (!navigator.mediaDevices?.getUserMedia) return onNotice('Browser ini tidak menyediakan akses kamera. Pilih foto dari perangkat.'); try { const nextStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }); setStream(nextStream); setCameraOpen(true); } catch { onNotice('Akses kamera ditolak atau tidak tersedia. Pilih foto dari perangkat.'); } }
-  function closeCamera() { stream?.getTracks().forEach((track) => track.stop()); setStream(null); setCameraOpen(false); }
-  function captureCamera() { const canvas = document.createElement('canvas'); canvas.width = videoRef.current?.videoWidth || 1280; canvas.height = videoRef.current?.videoHeight || 720; canvas.getContext('2d').drawImage(videoRef.current, 0, 0, canvas.width, canvas.height); canvas.toBlob((blob) => { closeCamera(); buildDummyScan(new File([blob], 'scan-kamera.jpg', { type: 'image/jpeg' })); }, 'image/jpeg', .9); }
-  function updateAnswer(number, scanned) { setAnswers((current) => current.map((answer) => answer.number === number ? { ...answer, scanned, confidence: scanned === answer.expected ? 'Tinggi' : 'Perlu dikonfirmasi' } : answer)); }
-  async function finishReview() { const correct = answers.filter((answer) => answer.scanned === answer.expected).length; const wrong = answers.length - correct; const payload = { assessmentId: 'assessment-1', studentName, correct, wrong, score: Math.round((correct / answers.length) * 100), status: 'Selesai', confidence: answers.some((answer) => answer.confidence !== 'Tinggi') ? 'Direview guru' : 'Tinggi' }; try { const response = await fetch('/api/grading', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) throw new Error(); } catch { onNotice('Demo selesai. Hasil tetap ditampilkan meski penyimpanan server belum tersedia.'); } setStage('result'); }
-  function reset() { setStage('upload'); setScanFile(null); setAnswers([]); }
-  const correct = answers.filter((answer) => answer.scanned === answer.expected).length;
-  const wrong = answers.length - correct;
-  return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · penilaian" title="AutoGrading." description="Scan lembar jawaban, periksa pembacaan sistem, lalu sesuaikan jawaban sebelum nilai dihitung." action={<span className="teacher-badge teacher-badge--yellow">Demo · perlu review guru</span>} />
-    {stage === 'upload' && <><div className="manual-ai-banner manual-ai-banner--blue"><span><Icon name="scan" size={19} /></span><div><strong>Scan dengan kamera atau foto.</strong><p>Untuk demo ini, hasil scan memakai data dummy agar guru dapat mencoba alur pengecekan ulang.</p></div></div><div className="grading-grid"><section className="teacher-panel grading-upload-panel"><span className="section-label">Langkah 1 · Scan</span><h2>Ambil foto lembar jawaban.</h2><label>Nama siswa<input value={studentName} onChange={(event) => setStudentName(event.target.value)} /></label><div className="grading-upload-actions"><button className="teacher-button teacher-button--dark" type="button" onClick={openCamera}><Icon name="camera" size={16} /> Buka kamera</button><label className="teacher-button teacher-button--quiet">Pilih foto<input className="visually-hidden-input" type="file" accept="image/*" onChange={handleFile} /></label></div><small className="grading-hint">Gunakan HTTPS atau localhost agar izin kamera dapat diberikan browser.</small></section><aside className="teacher-panel"><span className="section-label">Alur demo</span><ol className="grading-process"><li><b>1</b>Ambil atau pilih foto</li><li><b>2</b>Periksa hasil pembacaan</li><li><b>3</b>Koreksi jawaban yang keliru</li><li><b>4</b>Lihat nilai akhir</li></ol></aside></div></>}
-    {stage === 'review' && <section className="teacher-panel grading-review"><div className="grading-review__head"><div><span className="section-label">Langkah 2 · Pengecekan ulang</span><h2>Periksa hasil scan sebelum menghitung nilai.</h2><p>{scanFile?.name || 'Foto lembar jawaban'} · Dua contoh salah baca sengaja ditampilkan untuk demo.</p></div><span className="teacher-badge teacher-badge--yellow">{answers.filter((answer) => answer.confidence !== 'Tinggi').length} perlu dicek</span></div><label className="grading-student-field">Nama siswa<input value={studentName} onChange={(event) => setStudentName(event.target.value)} /></label><div className="scan-review-list">{answers.map((answer) => <article className={answer.scanned === answer.expected ? 'scan-answer' : 'scan-answer is-warning'} key={answer.number}><div><strong>Soal {answer.number}</strong><small>Kunci: {answer.expected}</small></div><label>Hasil scan<select value={answer.scanned} onChange={(event) => updateAnswer(answer.number, event.target.value)}><option>A</option><option>B</option><option>C</option><option>D</option></select></label><span className="scan-confidence">{answer.scanned === answer.expected ? 'Sesuai' : `Terbaca ${answer.scanned}, seharusnya ${answer.expected}`}</span></article>)}</div><div className="grading-actions"><button className="teacher-button teacher-button--quiet" type="button" onClick={reset}>Scan ulang</button><button className="teacher-button teacher-button--dark" type="button" onClick={finishReview}>Selesai cek & hitung nilai <Icon name="check" size={15} /></button></div></section>}
-    {stage === 'result' && <section className="grading-result-panel"><div className="grading-result__intro"><span className="section-label">Langkah 3 · Hasil penilaian</span><h2>Hasil scan sudah dikonfirmasi.</h2><p>{studentName} · {scanFile?.name || 'Foto lembar jawaban'}</p></div><div className="grading-result-stats"><div><span>Benar</span><strong>{correct}</strong><small>dari {answers.length} soal</small></div><div><span>Salah</span><strong>{wrong}</strong><small>perlu pengayaan</small></div><div><span>Nilai</span><strong>{Math.round((correct / answers.length) * 100)}</strong><small>dari 100</small></div></div><div className="grading-result-actions"><button className="teacher-button teacher-button--quiet" type="button" onClick={reset}>Scan lembar lain</button><span className="teacher-badge teacher-badge--soft">Disimpan sebagai hasil demo</span></div></section>}
-    {cameraOpen && <div className="camera-modal" role="dialog" aria-modal="true" aria-label="Kamera scan lembar jawaban"><div className="camera-modal__panel"><div className="camera-modal__head"><strong>Ambil foto lembar jawaban</strong><button type="button" onClick={closeCamera} aria-label="Tutup kamera"><Icon name="close" size={18} /></button></div><video ref={(node) => { videoRef.current = node; if (node && stream) node.srcObject = stream; }} autoPlay playsInline /><p>Posisikan seluruh lembar di dalam kamera.</p><button className="teacher-button teacher-button--dark" type="button" onClick={captureCamera}><Icon name="camera" size={16} /> Ambil foto</button></div></div>}
-  </div>;
-}
+function TeacherHistory({ materials, assessments, grading }) { const items = [...materials.map((item) => ({ type: 'Materi', title: item.title, meta: `${item.subject} · ${item.grade}`, date: item.updatedAt })), ...assessments.map((item) => ({ type: 'Ulangan', title: item.title, meta: `${item.questionCount} soal · ${item.grade}`, date: item.updatedAt })), ...grading.map((item) => ({ type: 'Nilai', title: `Hasil ${item.studentName}`, meta: `Nilai ${item.score}${item.assessmentSnapshot?.title ? ' - ' + item.assessmentSnapshot.title : ''}`, date: item.updatedAt || item.createdAt || 'Waktu belum dicatat' }))]; return <div className="teacher-page"><TeacherHeader eyebrow="Workspace Guru · arsip" title="Riwayat aktivitas." description="Materi, ulangan, dan hasil penilaian yang sudah tercatat di workspace." /><div className="teacher-history-list">{items.map((item, index) => <article key={`${item.type}-${index}`}><span>{item.type}</span><div><strong>{item.title}</strong><small>{item.meta}</small></div><time>{item.date}</time></article>)}</div></div>; }
