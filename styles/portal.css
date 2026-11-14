@@ -23,6 +23,8 @@
 .teacher-page-header h1{max-width:750px}
 .teacher-page-header .eyebrow{letter-spacing:.09em;font-size:11px;color:var(--sdn-blue);font-family:inherit}
 .teacher-stat strong{font-variant-numeric:tabular-nums}
+.teacher-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.teacher-ai-note p{color:#dbe7f5}
 @media(max-width:780px){.teacher-brand{min-height:52px}.teacher-brand__logo{height:42px;width:42px;flex-basis:42px}}
 
 /* Admin backend-ready: logo sekolah dan identitas dinamis */
